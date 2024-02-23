@@ -1,5 +1,5 @@
-import type { Project } from "../entities"
-import { AsyncTaskResult } from "../types"
+import type { Project } from "../../entities"
+import type { AsyncTaskResult } from "../../types"
 
 /**
  * # Create a new Project

@@ -13,7 +13,11 @@
     "@repo/prettier-config": "workspace:*",
     "@repo/ts-config": "workspace:*",
     "turbo": "latest",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "jest": "latest",
+    "@types/jest": "^29.5.12",
+    "ts-jest": "^29.1.2",
+    "ts-node": "latest"
   },
   "packageManager": "pnpm@8.9.0",
   "engines": {
