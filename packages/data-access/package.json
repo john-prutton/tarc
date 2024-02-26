@@ -1,0 +1,16 @@
+{
+  "name": "@repo/data-access",
+  "version": "0.0.0",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "index.ts",
+  "dependencies": {
+    "@repo/domain": "workspace:*"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/ts-config": "workspace:*"
+  }
+}
