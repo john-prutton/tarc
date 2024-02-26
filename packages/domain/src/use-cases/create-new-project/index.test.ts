@@ -1,14 +1,8 @@
 import { createNewProject } from "."
 import { Project } from "../../entities"
+import { mockProjectRepository } from "../../entities/project/__mocks__"
 
-const mockedProjectRepository: Project.Repository = {
-  create: jest.fn(),
-  getAll: jest.fn(),
-  getById: jest.fn(),
-  transact: jest
-    .fn()
-    .mockImplementation(async (tx) => await tx(mockedProjectRepository))
-}
+const mockedProjectRepository = mockProjectRepository()
 
 describe("create-new-project", () => {
   it("fails if it cant get existing projects", async () => {
