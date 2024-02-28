@@ -1,0 +1,20 @@
+{
+  "name": "@repo/auth",
+  "version": "0.0.0",
+  "engines": {
+    "node": "20"
+  },
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "index.ts",
+  "dependencies": {
+    "@repo/domain": "workspace:*",
+    "lucia": "^3.0.1"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/ts-config": "workspace:*"
+  }
+}
