@@ -1,5 +1,5 @@
-import { deleteProject } from "."
 import { mockProjectRepository } from "../../entities/project/__mocks__"
+import { deleteProject } from "./delete-project"
 
 const mockedProjectRepository = mockProjectRepository()
 
@@ -10,10 +10,7 @@ describe("delete project", () => {
       error: { code: "NOT_FOUND", message: "test-error" }
     })
 
-    const result = await deleteProject(
-      { projectId: "test-id" },
-      mockedProjectRepository
-    )
+    const result = await deleteProject("test-id", mockedProjectRepository)
 
     console.log(result)
 

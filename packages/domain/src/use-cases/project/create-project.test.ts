@@ -1,6 +1,6 @@
-import { createNewProject } from "."
 import { Project } from "../../entities"
 import { mockProjectRepository } from "../../entities/project/__mocks__"
+import { createProject } from "./create-project"
 
 const mockedProjectRepository = mockProjectRepository()
 
@@ -13,7 +13,7 @@ describe("create-new-project", () => {
       error: { code: "SERVER_ERROR", message: "test-error" }
     })
 
-    const result = await createNewProject(newProject, mockedProjectRepository)
+    const result = await createProject(newProject, mockedProjectRepository)
 
     expect(result.success).toBeFalsy()
     if (result.success) return
@@ -29,7 +29,7 @@ describe("create-new-project", () => {
       data: new Array(3)
     })
 
-    const result = await createNewProject(newProject, mockedProjectRepository)
+    const result = await createProject(newProject, mockedProjectRepository)
 
     expect(result.success).toBeFalsy()
     if (result.success) return
@@ -50,7 +50,7 @@ describe("create-new-project", () => {
       data: { id: "test-id", name: "test-name" }
     })
 
-    const result = await createNewProject(newProject, mockedProjectRepository)
+    const result = await createProject(newProject, mockedProjectRepository)
 
     expect(result.success).toBeTruthy()
     if (!result.success) return

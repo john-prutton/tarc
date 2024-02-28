@@ -10,7 +10,7 @@ import type { AsyncTaskResult } from "../../types"
  * @param projectRepository
  * @returns result
  */
-export async function createNewProject(
+export async function createProject(
   newProject: Project.NewEntity,
   projectRepository: Project.Repository
 ): AsyncTaskResult<Project.Entity> {
