@@ -48,13 +48,16 @@ const authRepository: Auth.Repository = {
 
 const userRepository: User.Repository = {
   async create(user) {
-    const prevUser = users.findIndex((user) => user.username)
+    const prevUser = users.findIndex(
+      ({ username }) => username === user.username
+    )
+
     if (prevUser !== -1)
       return {
         success: false,
         error: {
           code: "NOT_ALLOWED",
-          message: "Username already in use"
+          message: "Unique constraint failed on 'username'"
         }
       }
 
