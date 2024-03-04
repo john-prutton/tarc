@@ -17,7 +17,8 @@
     "jest": "latest",
     "@types/jest": "^29.5.12",
     "ts-jest": "^29.1.2",
-    "ts-node": "latest"
+    "ts-node": "latest",
+    "dotenv-cli": "^7.3.0"
   },
   "packageManager": "pnpm@8.9.0",
   "engines": {

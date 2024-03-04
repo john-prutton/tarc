@@ -2,18 +2,18 @@
   "name": "@repo/web-app",
   "version": "0.0.0",
   "scripts": {
-    "dev": "next dev",
+    "dev": "dotenv -e ../../.env.local next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "ui:add": "pnpx shadcn-ui@latest add"
   },
   "dependencies": {
+    "@repo/auth": "workspace:*",
+    "@repo/domain": "workspace:*",
+    "@repo/drizzle-database": "workspace:*",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-tabs": "^1.0.4",
-    "@repo/auth": "workspace:*",
-    "@repo/database": "workspace:*",
-    "@repo/domain": "workspace:*",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "lucide-react": "^0.338.0",

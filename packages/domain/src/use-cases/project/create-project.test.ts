@@ -1,19 +1,28 @@
+import { mockDatabaseRepository } from "../../__mocks__"
 import { Project } from "../../entities"
 import { mockProjectRepository } from "../../entities/project/__mocks__"
 import { createProject } from "./create-project"
 
-const mockedProjectRepository = mockProjectRepository()
+const mockedDatabaseRepository = mockDatabaseRepository()
 
 describe("create-new-project", () => {
   it("fails if it cant get existing projects", async () => {
     const newProject: Project.NewEntity = { name: "test" }
 
-    jest.spyOn(mockedProjectRepository, "getAll").mockResolvedValueOnce({
-      success: false,
-      error: { code: "SERVER_ERROR", message: "test-error" }
-    })
+    jest
+      .spyOn(mockedDatabaseRepository.project, "getAll")
+      .mockResolvedValueOnce({
+        success: false,
+        error: { code: "SERVER_ERROR", message: "test-error" }
+      })
 
-    const result = await createProject(newProject, mockedProjectRepository)
+    jest
+      .spyOn(mockedDatabaseRepository, "transaction")
+      .mockImplementationOnce(async (txFn) => {
+        return txFn(mockedDatabaseRepository)
+      })
+
+    const result = await createProject(newProject, mockedDatabaseRepository)
 
     expect(result.success).toBeFalsy()
     if (result.success) return
@@ -24,12 +33,20 @@ describe("create-new-project", () => {
   it("fails if there are too many projects", async () => {
     const newProject: Project.NewEntity = { name: "test" }
 
-    jest.spyOn(mockedProjectRepository, "getAll").mockResolvedValueOnce({
-      success: true,
-      data: new Array(3)
-    })
+    jest
+      .spyOn(mockedDatabaseRepository.project, "getAll")
+      .mockResolvedValueOnce({
+        success: true,
+        data: new Array(3)
+      })
 
-    const result = await createProject(newProject, mockedProjectRepository)
+    jest
+      .spyOn(mockedDatabaseRepository, "transaction")
+      .mockImplementationOnce(async (txFn) => {
+        return txFn(mockedDatabaseRepository)
+      })
+
+    const result = await createProject(newProject, mockedDatabaseRepository)
 
     expect(result.success).toBeFalsy()
     if (result.success) return
@@ -40,17 +57,27 @@ describe("create-new-project", () => {
   it("passes if there are not too many projects", async () => {
     const newProject: Project.NewEntity = { name: "test-name" }
 
-    jest.spyOn(mockedProjectRepository, "getAll").mockResolvedValueOnce({
-      success: true,
-      data: new Array(0)
-    })
+    jest
+      .spyOn(mockedDatabaseRepository.project, "getAll")
+      .mockResolvedValueOnce({
+        success: true,
+        data: new Array(0)
+      })
 
-    jest.spyOn(mockedProjectRepository, "create").mockResolvedValueOnce({
-      success: true,
-      data: { id: "test-id", name: "test-name" }
-    })
+    jest
+      .spyOn(mockedDatabaseRepository.project, "create")
+      .mockResolvedValueOnce({
+        success: true,
+        data: { id: "test-id", name: "test-name" }
+      })
 
-    const result = await createProject(newProject, mockedProjectRepository)
+    jest
+      .spyOn(mockedDatabaseRepository, "transaction")
+      .mockImplementationOnce(async (txFn) => {
+        return txFn(mockedDatabaseRepository)
+      })
+
+    const result = await createProject(newProject, mockedDatabaseRepository)
 
     expect(result.success).toBeTruthy()
     if (!result.success) return

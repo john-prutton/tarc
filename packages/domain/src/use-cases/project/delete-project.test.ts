@@ -1,16 +1,18 @@
-import { mockProjectRepository } from "../../entities/project/__mocks__"
+import { mockDatabaseRepository } from "../../__mocks__"
 import { deleteProject } from "./delete-project"
 
-const mockedProjectRepository = mockProjectRepository()
+const mockedDatabaseRepository = mockDatabaseRepository()
 
 describe("delete project", () => {
   it("fails if it cant find the project", async () => {
-    jest.spyOn(mockedProjectRepository, "delete").mockResolvedValueOnce({
-      success: false,
-      error: { code: "NOT_FOUND", message: "test-error" }
-    })
+    jest
+      .spyOn(mockedDatabaseRepository.project, "delete")
+      .mockResolvedValueOnce({
+        success: false,
+        error: { code: "NOT_FOUND", message: "test-error" }
+      })
 
-    const result = await deleteProject("test-id", mockedProjectRepository)
+    const result = await deleteProject("test-id", mockedDatabaseRepository)
 
     console.log(result)
 

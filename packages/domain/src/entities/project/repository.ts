@@ -6,8 +6,4 @@ export type Repository = {
   getById: (projectId: Project.Entity["id"]) => AsyncTaskResult<Project.Entity>
   getAll: () => AsyncTaskResult<Project.Entity[]>
   delete: (projectId: Project.Entity["id"]) => AsyncTaskResult<undefined>
-
-  transact: <T>(
-    tx: (txProjectRepository: Project.Repository) => AsyncTaskResult<T>
-  ) => AsyncTaskResult<T>
 }

@@ -1,5 +1,5 @@
 type TaskError = {
-  code: "SERVER_ERROR" | "NOT_FOUND" | "NOT_ALLOWED"
+  code: "SERVER_ERROR" | "ROLLBACK" | "NOT_FOUND" | "NOT_ALLOWED"
   message: string
 }
 

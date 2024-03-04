@@ -1,9 +1,10 @@
+import { Database } from "../../adapters"
 import { Project } from "../../entities"
 import { AsyncTaskResult } from "../../types"
 
 export async function deleteProject(
   projectId: Project.Entity["id"],
-  projectRepository: Project.Repository
+  databaseRepository: Database.Repository
 ): AsyncTaskResult<undefined> {
-  return await projectRepository.delete(projectId)
+  return await databaseRepository.project.delete(projectId)
 }

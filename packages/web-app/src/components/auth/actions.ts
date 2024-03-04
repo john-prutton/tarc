@@ -3,13 +3,11 @@
 import { revalidatePath } from "next/cache"
 import { cookies } from "next/headers"
 
-import { createLucia } from "@repo/auth"
-import { db } from "@repo/database"
 import { Session, User } from "@repo/domain/entities"
 import { AsyncTaskResult, TaskResult } from "@repo/domain/types"
 import { signIn, signOut, signUp } from "@repo/domain/use-cases/auth"
 
-const authAdapter = createLucia(db.auth)
+import { authAdapter, databaseRepo } from "@/lib/adapters"
 
 export async function trySignUp(
   state: TaskResult<void>,
@@ -30,7 +28,7 @@ export async function trySignUp(
     username: data.username,
     plainPassword: data.password
   }
-  const result = await signUp(newUser, db.user, authAdapter)
+  const result = await signUp(newUser, databaseRepo.user, authAdapter)
 
   revalidatePath("/")
   if (result.success) {
@@ -62,7 +60,7 @@ export async function trySignIn(
     plainPassword: data.password
   }
 
-  const result = await signIn(newUser, db.user, authAdapter)
+  const result = await signIn(newUser, databaseRepo.user, authAdapter)
 
   revalidatePath("/")
   if (result.success) {
@@ -93,7 +91,7 @@ export async function tryGetAuthedUser() {
   const sessionId = cookies().get(Session.COOKIE_NAME)?.value
   if (!sessionId) return null
 
-  const [_, user] = await db.auth.getSessionAndUser(sessionId)
+  const [_, user] = await databaseRepo.auth.getSessionAndUser(sessionId)
 
   return user
 }

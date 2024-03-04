@@ -5,7 +5,7 @@ type SessionId = Session.Entity["id"]
 type UserId = User.Entity["id"]
 
 export type Repository = {
-  deleteExpiredSessions(): Promise<void>
+  deleteExpiredSessions(timestamp: Date): Promise<void>
   deleteSession(sessionId: SessionId): Promise<void>
   deleteUserSessions(userId: UserId): Promise<void>
   getSessionAndUser(

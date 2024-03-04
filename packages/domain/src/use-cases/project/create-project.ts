@@ -1,3 +1,4 @@
+import type { Database } from "../../adapters"
 import type { Project } from "../../entities"
 import type { AsyncTaskResult } from "../../types"
 
@@ -12,10 +13,10 @@ import type { AsyncTaskResult } from "../../types"
  */
 export async function createProject(
   newProject: Project.NewEntity,
-  projectRepository: Project.Repository
+  databaseRepository: Database.Repository
 ): AsyncTaskResult<Project.Entity> {
-  return projectRepository.transact(async (tx) => {
-    const result = await tx.getAll()
+  return databaseRepository.transaction(async (txRepo) => {
+    const result = await txRepo.project.getAll()
 
     if (!result.success)
       return {
@@ -32,6 +33,6 @@ export async function createProject(
         }
       }
 
-    return await tx.create({ name: newProject.name })
+    return await txRepo.project.create({ name: newProject.name })
   })
 }
