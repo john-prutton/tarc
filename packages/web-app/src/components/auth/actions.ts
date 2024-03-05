@@ -30,9 +30,9 @@ export async function trySignUp(
   }
   const result = await signUp(newUser, databaseRepo.user, authAdapter)
 
-  revalidatePath("/")
   if (result.success) {
     cookies().set(result.data)
+    revalidatePath("/")
     return {
       success: true,
       data: undefined
@@ -62,9 +62,9 @@ export async function trySignIn(
 
   const result = await signIn(newUser, databaseRepo.user, authAdapter)
 
-  revalidatePath("/")
   if (result.success) {
     cookies().set(result.data)
+    revalidatePath("/")
     return {
       success: true,
       data: undefined
@@ -79,6 +79,7 @@ export async function trySignOut(): AsyncTaskResult<void> {
       success: false,
       error: { code: "NOT_ALLOWED", message: "No session found" }
     }
+
   const result = await signOut(sessionId, authAdapter)
   if (!result.success) return result
 
