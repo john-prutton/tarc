@@ -2,11 +2,9 @@
   "name": "@repo/web-app",
   "version": "0.0.0",
   "scripts": {
-    "dev": "dotenv -e ../../.env.local next dev",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "build:local": "dotenv -e ../../.env.local next build",
-    "start:local": "dotenv -e ../../.env.local next start",
     "lint": "next lint",
     "ui:add": "pnpx shadcn-ui@latest add"
   },
