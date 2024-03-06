@@ -2,11 +2,22 @@
   "name": "tarc",
   "private": true,
   "scripts": {
-    "build": "turbo build",
-    "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "ts:check": "tsc --noEmit"
+    "watch-ts-check": "tsc --noEmit --watch",
+    "build": "turbo build",
+    "dev": "dotenv -e .env.development.local \"pnpm db-push && pnpm web-app-dev\"",
+    "web-app-dev": "pnpm --filter @repo/web-app dev",
+    "test": "pnpm test-domain && pnpm test-db",
+    "test-domain": "dotenv -e .env.test.local pnpm domain-test",
+    "watch-test-domain": "dotenv -e .env.test.local pnpm watch-domain-test",
+    "test-db": "dotenv -e .env.test.local \"pnpm db-push && pnpm db-test\"",
+    "watch-test-db": "dotenv -e .env.test.local \"pnpm db-push && pnpm watch-db-test\"",
+    "domain-test": "pnpm --filter @repo/domain test",
+    "watch-domain-test": "pnpm --filter @repo/domain test -- --watch",
+    "db-push": "pnpm --filter @repo/drizzle-database push",
+    "db-test": "pnpm --filter @repo/drizzle-database test",
+    "watch-db-test": "pnpm --filter @repo/drizzle-database test -- --watch"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

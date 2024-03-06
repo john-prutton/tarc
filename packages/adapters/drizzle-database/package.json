@@ -7,9 +7,10 @@
   },
   "types": "index.ts",
   "scripts": {
-    "test": "jest --watch",
-    "push": "dotenv -e ../../../.env.local drizzle-kit push:sqlite",
-    "studio": "dotenv -e ../../../.env.local drizzle-kit studio"
+    "test": "jest",
+    "generate": "drizzle-kit generate:sqlite",
+    "push": "drizzle-kit push:sqlite",
+    "studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@libsql/client": "^0.5.2",
