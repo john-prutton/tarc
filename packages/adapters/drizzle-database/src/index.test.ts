@@ -1,5 +1,3 @@
-import { migrate } from "drizzle-orm/libsql/migrator"
-
 import { Project, Session, User } from "@repo/domain/entities"
 import { TaskResult } from "@repo/domain/types"
 
@@ -8,16 +6,8 @@ import { createDb } from "./db"
 import { projectsTable, sessionsTable, usersTable } from "./schema"
 
 describe("database repository", () => {
-  let db: ReturnType<typeof createDb>
-  let repository: ReturnType<typeof createRepository>
-
-  // setup and migrate db, instantiate repository
-  beforeAll(async () => {
-    db = createDb({ url: "file:sqlite.db" })
-    await migrate(db, { migrationsFolder: "./migrations" })
-
-    repository = createRepository(db)
-  })
+  const db = createDb({ url: process.env["DATABASE_URL"]! })
+  const repository = createRepository(db)
 
   // clear all data from the previous test
   afterEach(async () => {
@@ -100,13 +90,16 @@ describe("database repository", () => {
   })
 
   describe("user repo", () => {
+    const fakeUser = {
+      id: "test-id",
+      username: "test-username",
+      hashedPassword: "test-hashed-password",
+      credits: 100
+    }
+
     test("successful crud", async () => {
       // create user
-      const createRes = await repository.user.create({
-        id: "test-id",
-        username: "test-username",
-        hashedPassword: "test-hashed-password"
-      })
+      const createRes = await repository.user.create(fakeUser)
 
       expect(createRes).toEqual<TaskResult<undefined>>({
         success: true,
@@ -118,26 +111,17 @@ describe("database repository", () => {
         await repository.user.getByUsername("test-username")
       expect(getUsernameRes).toEqual<TaskResult<User.Entity>>({
         success: true,
-        data: {
-          id: "test-id",
-          username: "test-username",
-          hashedPassword: "test-hashed-password"
-        }
+        data: fakeUser
       })
     })
 
     test("unsuccessful crud", async () => {
-      const create1Res = await repository.user.create({
-        id: "test-id",
-        username: "test-username",
-        hashedPassword: "test-hashed-password"
-      })
+      const create1Res = await repository.user.create(fakeUser)
 
       // try create users with same id
       const create2Res = await repository.user.create({
-        id: "test-id",
-        username: "test-username-2",
-        hashedPassword: "test-hashed-password"
+        ...fakeUser,
+        username: "test-username-2"
       })
 
       expect(create2Res).toEqual<TaskResult<User.Entity>>({
@@ -151,9 +135,9 @@ describe("database repository", () => {
 
       // try create users with same username
       const create3Res = await repository.user.create({
+        ...fakeUser,
         id: "test-id-2",
-        username: "test-username",
-        hashedPassword: "test-hashed-password"
+        username: "test-username"
       })
 
       expect(create3Res).toEqual<TaskResult<User.Entity>>({
@@ -181,7 +165,8 @@ describe("database repository", () => {
     const user: User.Entity = {
       id: "test-user-id",
       username: "test-username",
-      hashedPassword: "test-hashed-password"
+      hashedPassword: "test-hashed-password",
+      credits: 100
     }
     const session: Session.Entity = {
       id: "test-session-id",

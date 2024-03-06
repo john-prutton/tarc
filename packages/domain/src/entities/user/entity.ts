@@ -2,6 +2,7 @@ export type Entity = {
   id: string
   username: string
   hashedPassword: string
+  credits: number
 }
 
 export type NewEntity = {
