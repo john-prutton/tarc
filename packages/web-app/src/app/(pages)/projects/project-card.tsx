@@ -2,9 +2,9 @@
 
 import { Project } from "@repo/domain/entities"
 
-import type { tryDeleteProject } from "@/app/projects/actions"
+import { Button } from "@/components/ui/button"
 
-import { Button } from "./ui/button"
+import type { tryDeleteProject } from "./actions"
 
 export function ProjectCard({
   project,

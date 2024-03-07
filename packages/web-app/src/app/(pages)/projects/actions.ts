@@ -6,8 +6,8 @@ import { Project } from "@repo/domain/entities"
 import { AsyncTaskResult } from "@repo/domain/types"
 import { createProject, deleteProject } from "@repo/domain/use-cases/project"
 
-import { tryGetAuthedUser } from "@/components/auth/actions"
-import { databaseRepo } from "@/lib/adapters/database"
+import { databaseAdapter } from "@/lib/adapters"
+import { tryGetAuthedUser } from "@/lib/auth/util"
 
 export async function tryCreateProject(
   formData: FormData
@@ -31,7 +31,7 @@ export async function tryCreateProject(
   // try create project
   const result = await createProject(
     { newProject, userId: user.id },
-    databaseRepo
+    databaseAdapter
   )
 
   if (result.success) revalidatePath("/")
@@ -40,7 +40,7 @@ export async function tryCreateProject(
 }
 
 export async function getAllProjects() {
-  return await databaseRepo.project.getAll()
+  return await databaseAdapter.project.getAll()
 }
 
 export async function tryDeleteProject(projectId: Project.Entity["id"]) {
@@ -58,7 +58,7 @@ export async function tryDeleteProject(projectId: Project.Entity["id"]) {
   // try
   const result = await deleteProject(
     { projectId, userId: user.id },
-    databaseRepo
+    databaseAdapter
   )
 
   if (result.success) revalidatePath("/")

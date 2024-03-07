@@ -7,7 +7,7 @@ import { Session, User } from "@repo/domain/entities"
 import { AsyncTaskResult, TaskResult } from "@repo/domain/types"
 import { signIn, signOut, signUp } from "@repo/domain/use-cases/auth"
 
-import { authAdapter, databaseRepo } from "@/lib/adapters"
+import { authAdapter, databaseAdapter } from "@/lib/adapters"
 
 export async function trySignUp(
   state: TaskResult<void>,
@@ -28,7 +28,7 @@ export async function trySignUp(
     username: data.username,
     plainPassword: data.password
   }
-  const result = await signUp(newUser, databaseRepo.user, authAdapter)
+  const result = await signUp(newUser, databaseAdapter.user, authAdapter)
 
   if (result.success) {
     cookies().set(result.data)
@@ -60,7 +60,7 @@ export async function trySignIn(
     plainPassword: data.password
   }
 
-  const result = await signIn(newUser, databaseRepo.user, authAdapter)
+  const result = await signIn(newUser, databaseAdapter.user, authAdapter)
 
   if (result.success) {
     cookies().set(result.data)
@@ -86,13 +86,4 @@ export async function trySignOut(): AsyncTaskResult<void> {
   cookies().set(result.data)
   revalidatePath("/")
   return { success: true, data: undefined }
-}
-
-export async function tryGetAuthedUser() {
-  const sessionId = cookies().get(Session.COOKIE_NAME)?.value
-  if (!sessionId) return null
-
-  const [_, user] = await databaseRepo.auth.getSessionAndUser(sessionId)
-
-  return user
 }

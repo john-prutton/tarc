@@ -1,7 +1,8 @@
 "use client"
 
-import { TaskResult } from "@repo/domain/types"
 import { useFormState, useFormStatus } from "react-dom"
+
+import { TaskResult } from "@repo/domain/types"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,7 +16,7 @@ export function AuthForm() {
       defaultValue="sign-in"
       className="grid min-h-svh place-content-center"
     >
-      <TabsList className="mb-4">
+      <TabsList className="mb-4 bg-transparent">
         <TabsTrigger value="sign-in">Sign In</TabsTrigger>
         <TabsTrigger value="sign-up">Sign Up</TabsTrigger>
       </TabsList>

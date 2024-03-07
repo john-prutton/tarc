@@ -1,8 +1,8 @@
-import { ProjectCard } from "@/components/project-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 import { getAllProjects, tryCreateProject, tryDeleteProject } from "./actions"
+import { ProjectCard } from "./project-card"
 
 export default async function ProjectPage() {
   const allProjects = await getAllProjects()
