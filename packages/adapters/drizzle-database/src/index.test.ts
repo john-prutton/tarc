@@ -4,6 +4,7 @@ import { TaskResult } from "@repo/domain/types"
 import { createRepository } from "."
 import { createDb } from "./db"
 import { projectsTable, sessionsTable, usersTable } from "./schema"
+import { userProjectRolesTable } from "./schema/userProjectRoles"
 
 describe("database repository", () => {
   const db = createDb({ url: process.env["DATABASE_URL"]! })
@@ -11,6 +12,7 @@ describe("database repository", () => {
 
   // clear all data from the previous test
   afterEach(async () => {
+    await db.delete(userProjectRolesTable)
     await db.delete(sessionsTable)
     await db.delete(usersTable)
     await db.delete(projectsTable)
@@ -66,7 +68,7 @@ describe("database repository", () => {
       })
     })
 
-    test("return correct errors", async () => {
+    test("unsuccessful crud", async () => {
       // try get non-existent project by id
       const getIdRes = await repository.project.getById("not-found")
       expect(getIdRes).toEqual<TaskResult<Project.Entity>>({
@@ -87,6 +89,89 @@ describe("database repository", () => {
         }
       })
     })
+
+    describe("createUserRole", () => {
+      test("fails if user doesn't exist", async () => {
+        const createProjectRes = await repository.project.create({
+          name: "test-project"
+        })
+        expect(createProjectRes.success).toEqual(true)
+        if (!createProjectRes.success) return
+        const project = createProjectRes.data
+
+        const res = await repository.project.createUserRole(
+          project.id,
+          "non-existent-user-id",
+          "Owner"
+        )
+
+        expect(res).toEqual({
+          error: {
+            code: "SERVER_ERROR",
+            message:
+              "DB error of: LibsqlError: SQLITE_CONSTRAINT_FOREIGNKEY: FOREIGN KEY constraint failed"
+          },
+          success: false
+        })
+      })
+
+      test("fails if project doesn't exist", async () => {
+        const user = {
+          id: "test-user-id",
+          username: "test-username",
+          hashedPassword: "test-hashed-password",
+          credits: 100
+        }
+        const createUserRes = await repository.user.create(user)
+        expect(createUserRes.success).toEqual(true)
+        if (!createUserRes.success) return
+
+        const res = await repository.project.createUserRole(
+          "non-existent-project-id",
+          user.id,
+          "Owner"
+        )
+
+        expect(res).toEqual({
+          error: {
+            code: "SERVER_ERROR",
+            message:
+              "DB error of: LibsqlError: SQLITE_CONSTRAINT_FOREIGNKEY: FOREIGN KEY constraint failed"
+          },
+          success: false
+        })
+      })
+
+      test("succeeds if user & project exist", async () => {
+        // insert user
+        const user = {
+          id: "test-user-id",
+          username: "test-username",
+          hashedPassword: "test-hashed-password",
+          credits: 100
+        }
+        const createUserRes = await repository.user.create(user)
+        expect(createUserRes.success).toEqual(true)
+        if (!createUserRes.success) return
+
+        // insert project
+        const createProjectRes = await repository.project.create({
+          name: "test-project"
+        })
+        expect(createProjectRes.success).toEqual(true)
+        if (!createProjectRes.success) return
+        const project = createProjectRes.data
+
+        // try create role
+        const res = await repository.project.createUserRole(
+          project.id,
+          user.id,
+          "Owner"
+        )
+
+        expect(res).toEqual({ data: undefined, success: true })
+      })
+    })
   })
 
   describe("user repo", () => {
@@ -96,6 +181,20 @@ describe("database repository", () => {
       hashedPassword: "test-hashed-password",
       credits: 100
     }
+
+    describe("setCredits", () => {
+      test("fails when user doesn't exist", async () => {
+        const res = await repository.user.setCredits("non-existent", 0)
+
+        expect(res).toEqual({
+          error: {
+            code: "SERVER_ERROR",
+            message: "Something went wrong updating user's credits"
+          },
+          success: false
+        })
+      })
+    })
 
     test("successful crud", async () => {
       // create user
@@ -112,6 +211,20 @@ describe("database repository", () => {
       expect(getUsernameRes).toEqual<TaskResult<User.Entity>>({
         success: true,
         data: fakeUser
+      })
+
+      // set credits
+      const setCreditsRes = await repository.user.setCredits(fakeUser.id, 999)
+      expect(setCreditsRes).toEqual({ success: true, data: undefined })
+
+      // get user by id
+      const getIdRes = await repository.user.getById(fakeUser.id)
+      expect(getIdRes).toEqual<TaskResult<User.Entity>>({
+        success: true,
+        data: {
+          ...fakeUser,
+          credits: 999
+        }
       })
     })
 
@@ -283,7 +396,7 @@ describe("database repository", () => {
 
       const res = await repository.project.getAll()
 
-      expect(res).toEqual<TaskResult<{}[]>>({
+      expect(res).toEqual<TaskResult<never[]>>({
         success: true,
         data: []
       })
