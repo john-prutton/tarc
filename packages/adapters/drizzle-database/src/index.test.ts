@@ -90,8 +90,9 @@ describe("database repository", () => {
       })
     })
 
-    describe("createUserRole", () => {
-      test("fails if user doesn't exist", async () => {
+    describe("roles", () => {
+      test("create role fails if user doesn't exist", async () => {
+        // insert project
         const createProjectRes = await repository.project.create({
           name: "test-project"
         })
@@ -99,12 +100,14 @@ describe("database repository", () => {
         if (!createProjectRes.success) return
         const project = createProjectRes.data
 
-        const res = await repository.project.createUserRole(
+        // try create role
+        const res = await repository.project.createRole(
           project.id,
           "non-existent-user-id",
           "Owner"
         )
 
+        // checks
         expect(res).toEqual({
           error: {
             code: "SERVER_ERROR",
@@ -113,9 +116,20 @@ describe("database repository", () => {
           },
           success: false
         })
+
+        expect(
+          await repository.project.getRole({
+            projectId: project.id,
+            userId: "non-existent-user-id"
+          })
+        ).toEqual({
+          success: true,
+          data: "None"
+        })
       })
 
-      test("fails if project doesn't exist", async () => {
+      test("create role fails if project doesn't exist", async () => {
+        // insert user
         const user = {
           id: "test-user-id",
           username: "test-username",
@@ -126,12 +140,14 @@ describe("database repository", () => {
         expect(createUserRes.success).toEqual(true)
         if (!createUserRes.success) return
 
-        const res = await repository.project.createUserRole(
+        // try
+        const res = await repository.project.createRole(
           "non-existent-project-id",
           user.id,
           "Owner"
         )
 
+        // checks
         expect(res).toEqual({
           error: {
             code: "SERVER_ERROR",
@@ -140,6 +156,13 @@ describe("database repository", () => {
           },
           success: false
         })
+
+        expect(
+          await repository.project.getRole({
+            projectId: "non-existent-project-id",
+            userId: user.id
+          })
+        ).toEqual({ success: true, data: "None" })
       })
 
       test("succeeds if user & project exist", async () => {
@@ -163,13 +186,20 @@ describe("database repository", () => {
         const project = createProjectRes.data
 
         // try create role
-        const res = await repository.project.createUserRole(
+        const res = await repository.project.createRole(
           project.id,
           user.id,
           "Owner"
         )
 
-        expect(res).toEqual({ data: undefined, success: true })
+        expect(res).toEqual({ success: true, data: undefined })
+
+        expect(
+          await repository.project.getRole({
+            projectId: project.id,
+            userId: user.id
+          })
+        ).toEqual({ success: true, data: "Owner" })
       })
     })
   })

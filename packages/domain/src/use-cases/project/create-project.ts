@@ -49,7 +49,7 @@ export async function createProject(
     const project = createProjectResult.data
 
     // Add user as owner
-    const createRoleResult = await txRepo.project.createUserRole(
+    const createRoleResult = await txRepo.project.createRole(
       project.id,
       user.id,
       "Owner"

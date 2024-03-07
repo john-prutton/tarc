@@ -33,6 +33,7 @@ export async function tryCreateProject(
     { newProject, userId: user.id },
     databaseRepo
   )
+
   if (result.success) revalidatePath("/")
 
   return result
@@ -43,7 +44,23 @@ export async function getAllProjects() {
 }
 
 export async function tryDeleteProject(projectId: Project.Entity["id"]) {
-  const result = await deleteProject(projectId, databaseRepo)
+  // auth check for user
+  const user = await tryGetAuthedUser()
+  if (!user)
+    return {
+      success: false,
+      error: {
+        code: "NOT_ALLOWED",
+        message: "You must be signed in to do this."
+      }
+    }
+
+  // try
+  const result = await deleteProject(
+    { projectId, userId: user.id },
+    databaseRepo
+  )
+
   if (result.success) revalidatePath("/")
 
   return result

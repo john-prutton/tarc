@@ -99,7 +99,7 @@ describe("create-new-project", () => {
       data: undefined
     } as const
     const t = jest
-      .spyOn(mockedDatabaseRepository.project, "createUserRole")
+      .spyOn(mockedDatabaseRepository.project, "createRole")
       .mockResolvedValueOnce(mockedCreateRoleResult)
 
     // try
@@ -117,7 +117,7 @@ describe("create-new-project", () => {
     )
 
     expect(
-      mockedDatabaseRepository.project.createUserRole
+      mockedDatabaseRepository.project.createRole
     ).toHaveBeenLastCalledWith(
       mockedCreateProjectResult.data.id,
       mockedGetUserResult.data.id,

@@ -1,4 +1,4 @@
-import { eq, lte } from "drizzle-orm"
+import { and, eq, lte } from "drizzle-orm"
 
 import type { Auth, Database } from "@repo/domain/adapters"
 import type { Project, User } from "@repo/domain/entities"
@@ -276,7 +276,7 @@ export function createRepository(
       }
     },
 
-    async createUserRole(projectId, userId, role) {
+    async createRole(projectId, userId, role) {
       try {
         const result = await db
           .insert(userProjectRolesTable)
@@ -299,6 +299,28 @@ export function createRepository(
             code: "SERVER_ERROR",
             message: `DB error of: ${error}`
           }
+        }
+      }
+    },
+
+    async getRole({ projectId, userId }) {
+      try {
+        const [result] = await db
+          .select()
+          .from(userProjectRolesTable)
+          .where((table) =>
+            and(eq(table.projectId, projectId), eq(table.userId, userId))
+          )
+          .limit(1)
+
+        return {
+          success: true,
+          data: result?.role ?? "None"
+        }
+      } catch (error) {
+        return {
+          success: false,
+          error: { code: "SERVER_ERROR", message: `DB error of: ${error}` }
         }
       }
     }

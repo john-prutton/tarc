@@ -6,9 +6,16 @@ export type Repository = {
   getById: (projectId: Project.Entity["id"]) => AsyncTaskResult<Project.Entity>
   getAll: () => AsyncTaskResult<Project.Entity[]>
   delete: (projectId: Project.Entity["id"]) => AsyncTaskResult<undefined>
-  createUserRole: (
+  createRole: (
     projectId: Project.Entity["id"],
     userId: User.Entity["id"],
-    role: "Owner" | "Leader" | "Member"
+    role: Project.ProjectRole
   ) => AsyncTaskResult<void>
+  getRole: ({
+    projectId,
+    userId
+  }: {
+    projectId: Project.Entity["id"]
+    userId: User.Entity["id"]
+  }) => AsyncTaskResult<Project.ProjectRole | "None">
 }
