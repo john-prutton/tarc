@@ -1,26 +1,18 @@
-import { migrate } from "drizzle-orm/libsql/migrator"
-
 import { Project, Session, User } from "@repo/domain/entities"
 import { TaskResult } from "@repo/domain/types"
 
 import { createRepository } from "."
 import { createDb } from "./db"
 import { projectsTable, sessionsTable, usersTable } from "./schema"
+import { userProjectRolesTable } from "./schema/userProjectRoles"
 
 describe("database repository", () => {
-  let db: ReturnType<typeof createDb>
-  let repository: ReturnType<typeof createRepository>
-
-  // setup and migrate db, instantiate repository
-  beforeAll(async () => {
-    db = createDb({ url: "file:sqlite.db" })
-    await migrate(db, { migrationsFolder: "./migrations" })
-
-    repository = createRepository(db)
-  })
+  const db = createDb({ url: process.env["DATABASE_URL"]! })
+  const repository = createRepository(db)
 
   // clear all data from the previous test
   afterEach(async () => {
+    await db.delete(userProjectRolesTable)
     await db.delete(sessionsTable)
     await db.delete(usersTable)
     await db.delete(projectsTable)
@@ -76,7 +68,7 @@ describe("database repository", () => {
       })
     })
 
-    test("return correct errors", async () => {
+    test("unsuccessful crud", async () => {
       // try get non-existent project by id
       const getIdRes = await repository.project.getById("not-found")
       expect(getIdRes).toEqual<TaskResult<Project.Entity>>({
@@ -97,16 +89,146 @@ describe("database repository", () => {
         }
       })
     })
+
+    describe("roles", () => {
+      test("create role fails if user doesn't exist", async () => {
+        // insert project
+        const createProjectRes = await repository.project.create({
+          name: "test-project"
+        })
+        expect(createProjectRes.success).toEqual(true)
+        if (!createProjectRes.success) return
+        const project = createProjectRes.data
+
+        // try create role
+        const res = await repository.project.createRole(
+          project.id,
+          "non-existent-user-id",
+          "Owner"
+        )
+
+        // checks
+        expect(res).toEqual({
+          error: {
+            code: "SERVER_ERROR",
+            message:
+              "DB error of: LibsqlError: SQLITE_CONSTRAINT_FOREIGNKEY: FOREIGN KEY constraint failed"
+          },
+          success: false
+        })
+
+        expect(
+          await repository.project.getRole({
+            projectId: project.id,
+            userId: "non-existent-user-id"
+          })
+        ).toEqual({
+          success: true,
+          data: "None"
+        })
+      })
+
+      test("create role fails if project doesn't exist", async () => {
+        // insert user
+        const user = {
+          id: "test-user-id",
+          username: "test-username",
+          hashedPassword: "test-hashed-password",
+          credits: 100
+        }
+        const createUserRes = await repository.user.create(user)
+        expect(createUserRes.success).toEqual(true)
+        if (!createUserRes.success) return
+
+        // try
+        const res = await repository.project.createRole(
+          "non-existent-project-id",
+          user.id,
+          "Owner"
+        )
+
+        // checks
+        expect(res).toEqual({
+          error: {
+            code: "SERVER_ERROR",
+            message:
+              "DB error of: LibsqlError: SQLITE_CONSTRAINT_FOREIGNKEY: FOREIGN KEY constraint failed"
+          },
+          success: false
+        })
+
+        expect(
+          await repository.project.getRole({
+            projectId: "non-existent-project-id",
+            userId: user.id
+          })
+        ).toEqual({ success: true, data: "None" })
+      })
+
+      test("succeeds if user & project exist", async () => {
+        // insert user
+        const user = {
+          id: "test-user-id",
+          username: "test-username",
+          hashedPassword: "test-hashed-password",
+          credits: 100
+        }
+        const createUserRes = await repository.user.create(user)
+        expect(createUserRes.success).toEqual(true)
+        if (!createUserRes.success) return
+
+        // insert project
+        const createProjectRes = await repository.project.create({
+          name: "test-project"
+        })
+        expect(createProjectRes.success).toEqual(true)
+        if (!createProjectRes.success) return
+        const project = createProjectRes.data
+
+        // try create role
+        const res = await repository.project.createRole(
+          project.id,
+          user.id,
+          "Owner"
+        )
+
+        expect(res).toEqual({ success: true, data: undefined })
+
+        expect(
+          await repository.project.getRole({
+            projectId: project.id,
+            userId: user.id
+          })
+        ).toEqual({ success: true, data: "Owner" })
+      })
+    })
   })
 
   describe("user repo", () => {
+    const fakeUser = {
+      id: "test-id",
+      username: "test-username",
+      hashedPassword: "test-hashed-password",
+      credits: 100
+    }
+
+    describe("setCredits", () => {
+      test("fails when user doesn't exist", async () => {
+        const res = await repository.user.setCredits("non-existent", 0)
+
+        expect(res).toEqual({
+          error: {
+            code: "SERVER_ERROR",
+            message: "Something went wrong updating user's credits"
+          },
+          success: false
+        })
+      })
+    })
+
     test("successful crud", async () => {
       // create user
-      const createRes = await repository.user.create({
-        id: "test-id",
-        username: "test-username",
-        hashedPassword: "test-hashed-password"
-      })
+      const createRes = await repository.user.create(fakeUser)
 
       expect(createRes).toEqual<TaskResult<undefined>>({
         success: true,
@@ -118,26 +240,31 @@ describe("database repository", () => {
         await repository.user.getByUsername("test-username")
       expect(getUsernameRes).toEqual<TaskResult<User.Entity>>({
         success: true,
+        data: fakeUser
+      })
+
+      // set credits
+      const setCreditsRes = await repository.user.setCredits(fakeUser.id, 999)
+      expect(setCreditsRes).toEqual({ success: true, data: undefined })
+
+      // get user by id
+      const getIdRes = await repository.user.getById(fakeUser.id)
+      expect(getIdRes).toEqual<TaskResult<User.Entity>>({
+        success: true,
         data: {
-          id: "test-id",
-          username: "test-username",
-          hashedPassword: "test-hashed-password"
+          ...fakeUser,
+          credits: 999
         }
       })
     })
 
     test("unsuccessful crud", async () => {
-      const create1Res = await repository.user.create({
-        id: "test-id",
-        username: "test-username",
-        hashedPassword: "test-hashed-password"
-      })
+      const create1Res = await repository.user.create(fakeUser)
 
       // try create users with same id
       const create2Res = await repository.user.create({
-        id: "test-id",
-        username: "test-username-2",
-        hashedPassword: "test-hashed-password"
+        ...fakeUser,
+        username: "test-username-2"
       })
 
       expect(create2Res).toEqual<TaskResult<User.Entity>>({
@@ -151,9 +278,9 @@ describe("database repository", () => {
 
       // try create users with same username
       const create3Res = await repository.user.create({
+        ...fakeUser,
         id: "test-id-2",
-        username: "test-username",
-        hashedPassword: "test-hashed-password"
+        username: "test-username"
       })
 
       expect(create3Res).toEqual<TaskResult<User.Entity>>({
@@ -181,7 +308,8 @@ describe("database repository", () => {
     const user: User.Entity = {
       id: "test-user-id",
       username: "test-username",
-      hashedPassword: "test-hashed-password"
+      hashedPassword: "test-hashed-password",
+      credits: 100
     }
     const session: Session.Entity = {
       id: "test-session-id",
@@ -298,7 +426,7 @@ describe("database repository", () => {
 
       const res = await repository.project.getAll()
 
-      expect(res).toEqual<TaskResult<{}[]>>({
+      expect(res).toEqual<TaskResult<never[]>>({
         success: true,
         data: []
       })

@@ -42,7 +42,8 @@ export async function signUp(
   const createUserResult = await userRepository.create({
     id: userId,
     username: newUser.username,
-    hashedPassword
+    hashedPassword,
+    credits: 100
   })
 
   // Error if an unhandled error occurred

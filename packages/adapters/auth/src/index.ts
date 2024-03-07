@@ -1,6 +1,7 @@
+import { generateId, Lucia, Scrypt, type Adapter } from "lucia"
+
 import type { Auth } from "@repo/domain/adapters"
 import type { User } from "@repo/domain/entities"
-import { generateId, Lucia, Scrypt, type Adapter } from "lucia"
 
 declare module "lucia" {
   interface Register {
@@ -32,7 +33,8 @@ export function createLucia(databaseRepository: Auth.Repository): Auth.Adapter {
           id: res[1].id,
           attributes: {
             hashedPassword: res[1].hashedPassword,
-            username: res[1].username
+            username: res[1].username,
+            credits: res[1].credits
           }
         }
       ]

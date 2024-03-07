@@ -1,11 +1,13 @@
+import { and, eq, lte } from "drizzle-orm"
+
 import type { Auth, Database } from "@repo/domain/adapters"
 import type { Project, User } from "@repo/domain/entities"
-import { eq, lte } from "drizzle-orm"
 
 import { createDb } from "./db"
 import { usersTable } from "./schema"
 import { projectsTable } from "./schema/projects"
 import { sessionsTable } from "./schema/sessions"
+import { userProjectRolesTable } from "./schema/userProjectRoles"
 
 export { createDb }
 
@@ -56,6 +58,63 @@ export function createRepository(
         return {
           success: true,
           data: user
+        }
+      } catch (error) {
+        return {
+          success: false,
+          error: { code: "SERVER_ERROR", message: `DB error of: ${error}` }
+        }
+      }
+    },
+
+    async getById(id) {
+      try {
+        const [user] = await db
+          .select()
+          .from(usersTable)
+          .where(eq(usersTable.id, id))
+          .limit(1)
+
+        if (!user)
+          return {
+            success: false,
+            error: {
+              code: "NOT_FOUND",
+              message: "User not found"
+            }
+          }
+
+        return {
+          success: true,
+          data: user
+        }
+      } catch (error) {
+        return {
+          success: false,
+          error: { code: "SERVER_ERROR", message: `DB error of: ${error}` }
+        }
+      }
+    },
+
+    async setCredits(userId, credits) {
+      try {
+        const result = await db
+          .update(usersTable)
+          .set({ credits })
+          .where(eq(usersTable.id, userId))
+
+        if (result.rowsAffected !== 1)
+          return {
+            success: false,
+            error: {
+              code: "SERVER_ERROR",
+              message: "Something went wrong updating user's credits"
+            }
+          }
+
+        return {
+          success: true,
+          data: undefined
         }
       } catch (error) {
         return {
@@ -214,6 +273,55 @@ export function createRepository(
       return {
         success: true,
         data: undefined
+      }
+    },
+
+    async createRole(projectId, userId, role) {
+      try {
+        const result = await db
+          .insert(userProjectRolesTable)
+          .values({ projectId, userId, role })
+
+        if (result.rowsAffected !== 1)
+          return {
+            success: false,
+            error: {
+              code: "SERVER_ERROR",
+              message: "Something went wrong while create user's role"
+            }
+          }
+
+        return { success: true, data: undefined }
+      } catch (error) {
+        return {
+          success: false,
+          error: {
+            code: "SERVER_ERROR",
+            message: `DB error of: ${error}`
+          }
+        }
+      }
+    },
+
+    async getRole({ projectId, userId }) {
+      try {
+        const [result] = await db
+          .select()
+          .from(userProjectRolesTable)
+          .where((table) =>
+            and(eq(table.projectId, projectId), eq(table.userId, userId))
+          )
+          .limit(1)
+
+        return {
+          success: true,
+          data: result?.role ?? "None"
+        }
+      } catch (error) {
+        return {
+          success: false,
+          error: { code: "SERVER_ERROR", message: `DB error of: ${error}` }
+        }
       }
     }
   }

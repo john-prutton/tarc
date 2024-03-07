@@ -77,7 +77,8 @@ describe("signUp function", () => {
       expect(mockedUserRepository.create).toHaveBeenCalledWith<[User.Entity]>({
         id: "newUserId",
         username: newUserDetails.username,
-        hashedPassword: "hashedPassword"
+        hashedPassword: "hashedPassword",
+        credits: 100
       })
     })
 
@@ -101,7 +102,8 @@ describe("signUp function", () => {
       data: {
         id: "existingUserId",
         username: "existingUsername",
-        hashedPassword: "existingHashedPassword"
+        hashedPassword: "existingHashedPassword",
+        credits: 0
       }
     })
 

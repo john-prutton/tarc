@@ -24,7 +24,8 @@ describe("signIn function", () => {
       data: {
         id: "testId",
         username: "testUsername",
-        hashedPassword: "testHashedPassword"
+        hashedPassword: "testHashedPassword",
+        credits: 100
       }
     })
 
@@ -139,7 +140,8 @@ describe("signIn function", () => {
       data: {
         id: "testId",
         username: "testUsername",
-        hashedPassword: "testHashedPassword"
+        hashedPassword: "testHashedPassword",
+        credits: 100
       }
     })
 
@@ -185,7 +187,8 @@ describe("signIn function", () => {
       data: {
         id: "testId",
         username: "testUsername",
-        hashedPassword: "testHashedPassword"
+        hashedPassword: "testHashedPassword",
+        credits: 100
       }
     })
 

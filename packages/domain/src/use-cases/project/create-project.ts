@@ -1,6 +1,8 @@
 import type { Database } from "../../adapters"
-import type { Project } from "../../entities"
+import type { Project, User } from "../../entities"
 import type { AsyncTaskResult } from "../../types"
+
+export const NEW_PROJECT_COST = 25
 
 /**
  * # Create a new Project
@@ -12,27 +14,49 @@ import type { AsyncTaskResult } from "../../types"
  * @returns result
  */
 export async function createProject(
-  newProject: Project.NewEntity,
+  input: {
+    newProject: Project.NewEntity
+    userId: User.Entity["id"]
+  },
   databaseRepository: Database.Repository
 ): AsyncTaskResult<Project.Entity> {
   return databaseRepository.transaction(async (txRepo) => {
-    const result = await txRepo.project.getAll()
+    // Get the user that will be "paying" for this project or error
+    const getUserResult = await txRepo.user.getById(input.userId)
+    if (!getUserResult.success) return getUserResult
+    const user = getUserResult.data
 
-    if (!result.success)
-      return {
-        success: false,
-        error: { code: "SERVER_ERROR", message: "Failed to load projects." }
-      }
-
-    if (result.data.length >= 3)
+    // Ensure user has funds or error
+    if (user.credits < NEW_PROJECT_COST)
       return {
         success: false,
         error: {
           code: "NOT_ALLOWED",
-          message: "There are too many projects. Delete one and try again."
+          message: "You don't have enough credits to create a new project"
         }
       }
 
-    return await txRepo.project.create({ name: newProject.name })
+    // Deduct credits from user or error
+    const updateCreditsResult = await txRepo.user.setCredits(
+      user.id,
+      user.credits - NEW_PROJECT_COST
+    )
+    if (!updateCreditsResult.success) return updateCreditsResult
+
+    // Create project or error
+    const createProjectResult = await txRepo.project.create(input.newProject)
+    if (!createProjectResult.success) return createProjectResult
+    const project = createProjectResult.data
+
+    // Add user as owner
+    const createRoleResult = await txRepo.project.createRole(
+      project.id,
+      user.id,
+      "Owner"
+    )
+    if (!createRoleResult.success) return createRoleResult
+
+    // Successfully return
+    return createProjectResult
   })
 }

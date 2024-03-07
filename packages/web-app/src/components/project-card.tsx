@@ -2,6 +2,8 @@
 
 import { Project } from "@repo/domain/entities"
 
+import type { tryDeleteProject } from "@/app/projects/actions"
+
 import { Button } from "./ui/button"
 
 export function ProjectCard({
@@ -9,7 +11,7 @@ export function ProjectCard({
   deleteAction
 }: {
   project: Project.Entity
-  deleteAction: Project.Repository["delete"]
+  deleteAction: typeof tryDeleteProject
 }) {
   return (
     <div className="item-center flex w-full flex-row gap-2">
@@ -17,7 +19,10 @@ export function ProjectCard({
         <span className="">{project.name}</span>
       </div>
 
-      <Button variant={"destructive"} onClick={() => deleteAction(project.id)}>
+      <Button
+        variant={"destructive"}
+        onClick={async () => await deleteAction(project.id)}
+      >
         X
       </Button>
     </div>
