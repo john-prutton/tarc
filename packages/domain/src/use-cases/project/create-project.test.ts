@@ -51,7 +51,7 @@ describe("create-new-project", () => {
 
     // try
     const result = await createProject(
-      { newProject, userId: "non-existent-user" },
+      { newProject, userId: mockedGetUserResult.data.id },
       mockedDatabaseRepository
     )
 
