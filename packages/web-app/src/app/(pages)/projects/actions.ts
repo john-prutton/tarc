@@ -3,13 +3,14 @@
 import { revalidatePath } from "next/cache"
 
 import { Project } from "@repo/domain/entities"
-import { AsyncTaskResult } from "@repo/domain/types"
+import { AsyncTaskResult, TaskResult } from "@repo/domain/types"
 import { createProject, deleteProject } from "@repo/domain/use-cases/project"
 
 import { databaseAdapter } from "@/lib/adapters"
 import { tryGetAuthedUser } from "@/lib/auth/util"
 
 export async function tryCreateProject(
+  state: TaskResult<Project.Entity> | undefined,
   formData: FormData
 ): AsyncTaskResult<Project.Entity> {
   // auth check for user
