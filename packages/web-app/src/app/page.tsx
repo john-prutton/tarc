@@ -1,7 +1,7 @@
 export default async function HomePage() {
   return (
     <>
-      <main className="relative h-screen overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800">
+      {/* <main className="relative h-screen overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800">
         <div className="flex items-start justify-between">
           <div className="relative my-4 ml-4 hidden h-screen w-80 shadow-lg lg:block">
             <div className="h-full rounded-2xl bg-white dark:bg-gray-700">
@@ -1208,7 +1208,7 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-      </main>
+      </main> */}
     </>
   )
 }

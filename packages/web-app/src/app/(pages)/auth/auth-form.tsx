@@ -12,10 +12,7 @@ import { trySignIn, trySignUp } from "./actions"
 
 export function AuthForm() {
   return (
-    <Tabs
-      defaultValue="sign-in"
-      className="grid min-h-svh place-content-center"
-    >
+    <Tabs defaultValue="sign-in" className="flex flex-col justify-between">
       <TabsList className="mb-4 bg-transparent">
         <TabsTrigger value="sign-in">Sign In</TabsTrigger>
         <TabsTrigger value="sign-up">Sign Up</TabsTrigger>
