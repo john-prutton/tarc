@@ -1,15 +1,21 @@
 "use server"
 
 import { AsyncTaskResult } from "@repo/domain/types"
-import { getCreditPricingOptions } from "@repo/domain/use-cases/credits"
+import {
+  getCreditPricingOptions,
+  initializeCreditPurchase
+} from "@repo/domain/use-cases/credits"
 
+import { paymentAdapter } from "@/lib/adapters"
 import { tryGetAuthedUser } from "@/lib/auth/util"
 
 export { getCreditPricingOptions }
 
-export async function tryGeneratePurchaseLink(inputs: {
-  priceOption: number
-}): AsyncTaskResult<string> {
+export async function tryGeneratePurchaseLink({
+  pricingOption
+}: {
+  pricingOption: number
+}): AsyncTaskResult<{ checkoutUrl: string; reference: string }> {
   // auth check
   const user = await tryGetAuthedUser()
   if (!user)
@@ -21,6 +27,9 @@ export async function tryGeneratePurchaseLink(inputs: {
       }
     }
 
-  console.log("generating purchase...")
-  return { success: true, data: "url-to-pay" }
+  // try initialize
+  return await initializeCreditPurchase(
+    { pricingOption, userId: user.id },
+    { paymentGateway: paymentAdapter }
+  )
 }
