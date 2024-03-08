@@ -1,10 +1,13 @@
 "use client"
 
+import { Loader2Icon, XIcon } from "lucide-react"
+import { useFormStatus } from "react-dom"
+
 import { Project } from "@repo/domain/entities"
 
 import { Button } from "@/components/ui/button"
 
-import type { tryDeleteProject } from "./actions"
+import type { tryDeleteProject } from "../actions"
 
 export function ProjectCard({
   project,
@@ -19,12 +22,19 @@ export function ProjectCard({
         <span className="">{project.name}</span>
       </div>
 
-      <Button
-        variant={"destructive"}
-        onClick={async () => await deleteAction(project.id)}
-      >
-        X
-      </Button>
+      <form action={() => deleteAction(project.id)}>
+        <SubmitButton />
+      </form>
     </div>
+  )
+}
+
+function SubmitButton() {
+  const { pending } = useFormStatus()
+
+  return (
+    <Button variant={"destructive"} disabled={pending}>
+      {!pending ? <XIcon /> : <Loader2Icon className="animate-spin" />}
+    </Button>
   )
 }
