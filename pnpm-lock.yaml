@@ -157,6 +157,9 @@ importers:
       '@repo/drizzle-database':
         specifier: workspace:*
         version: link:../adapters/drizzle-database
+      '@repo/payment-gateway':
+        specifier: workspace:*
+        version: link:../adapters/payment-gateway
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
