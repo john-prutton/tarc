@@ -16,6 +16,7 @@
     "domain-test": "pnpm --filter @repo/domain test",
     "watch-domain-test": "pnpm --filter @repo/domain test -- --watch",
     "db-push": "pnpm --filter @repo/drizzle-database push",
+    "db-studio": "pnpm --filter @repo/drizzle-database studio",
     "db-test": "pnpm --filter @repo/drizzle-database test",
     "watch-db-test": "pnpm --filter @repo/drizzle-database test -- --watch"
   },
