@@ -86,7 +86,7 @@ function Menu({ username }: { username: string }) {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={"/credits"} className="flex flex-row gap-x-2">
+          <Link href={"/purchase-credits"} className="flex flex-row gap-x-2">
             <BadgeCentIcon />
             Buy Credits
           </Link>
