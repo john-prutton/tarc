@@ -1,0 +1,13 @@
+{
+  "name": "@repo/payment-gateway",
+  "version": "0.0.0",
+  "main": "src/index.ts",
+  "scripts": {},
+  "dependencies": {
+    "@repo/domain": "workspace:*"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/ts-config": "workspace:*"
+  }
+}

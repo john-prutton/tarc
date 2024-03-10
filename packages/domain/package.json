@@ -4,6 +4,7 @@
   "main": "src/index.ts",
   "exports": {
     "./*": "./src/*/index.ts",
+    "./__mocks__": "./src/__mocks__.ts",
     "./types": "./src/types.ts"
   },
   "scripts": {

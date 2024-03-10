@@ -6,7 +6,7 @@ export default async function ProjectPage() {
   if (!allProjects.success) return "error"
 
   return (
-    <div className="mx-auto flex min-h-svh w-fit flex-col items-center justify-center gap-y-4 drop-shadow">
+    <main className="mx-auto flex w-fit flex-col items-center justify-center gap-y-4 drop-shadow">
       <CreateProjectForm />
 
       {allProjects.data.map((project) => (
@@ -16,6 +16,6 @@ export default async function ProjectPage() {
           deleteAction={tryDeleteProject}
         />
       ))}
-    </div>
+    </main>
   )
 }

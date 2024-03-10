@@ -1,10 +1,11 @@
 import type { Metadata } from "next"
 import { Space_Grotesk as Font } from "next/font/google"
 
-import "./globals.css"
-
 import { Navbar } from "@/components/layout/navbar"
+import { Toaster } from "@/components/ui/sonner"
 import { cn } from "@/lib/utils"
+
+import "./globals.css"
 
 const font = Font({ subsets: ["latin"] })
 
@@ -19,14 +20,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={cn(
-          font.className,
-          "flex min-h-svh flex-col [&>main]:flex-1"
-        )}
-      >
+      <body className={cn(font.className, "flex min-h-svh flex-col")}>
         <Navbar />
-        {children}
+        <div className="flex-1">{children}</div>
+        <Toaster />
       </body>
     </html>
   )
