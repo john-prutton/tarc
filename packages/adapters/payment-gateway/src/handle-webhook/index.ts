@@ -1,8 +1,8 @@
 import { createHmac } from "crypto"
 
-import { Database, PaymentGateway } from "@repo/domain/adapters"
+import { PaymentGateway } from "@repo/domain/adapters"
 
-import { PAYSTACK_SECRET } from "./env"
+import { PAYSTACK_SECRET } from "../env"
 
 export const handleWebhook: PaymentGateway.Repository["handleWebhook"] = async (
   { req },
@@ -55,10 +55,13 @@ export const handleWebhook: PaymentGateway.Repository["handleWebhook"] = async (
         userId,
         userCredits + credits
       )
+      if (!updateResult.success) return updateResult
 
-      return updateResult
+      return { success: true, data: undefined }
     }
   )
 
-  return updateCreditsResult
+  if (!updateCreditsResult.success) return updateCreditsResult
+
+  return { success: true, data: undefined }
 }
