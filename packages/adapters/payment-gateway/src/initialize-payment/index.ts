@@ -1,7 +1,7 @@
 import { PaymentGateway } from "@repo/domain/adapters"
 
-import { HOST_URL } from "./env"
-import { paystackFetch } from "./helpers"
+import { HOST_URL } from "../env"
+import { paystackFetch } from "../helpers"
 
 export const initializePayment: PaymentGateway.Repository["initializePayment"] =
   async (inputs) => {
