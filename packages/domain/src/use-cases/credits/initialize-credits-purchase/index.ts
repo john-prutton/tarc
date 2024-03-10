@@ -1,7 +1,7 @@
-import { getCreditPricingOptions } from "."
-import { PaymentGateway } from "../../adapters"
-import { User } from "../../entities"
-import { AsyncTaskResult } from "../../types"
+import { getCreditPricingOptions } from ".."
+import { PaymentGateway } from "../../../adapters"
+import { User } from "../../../entities"
+import { AsyncTaskResult } from "../../../types"
 
 type Dependencies = {
   paymentGateway: PaymentGateway.Repository
