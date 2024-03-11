@@ -47,34 +47,39 @@ async function ProfileSection() {
   return (
     <div className="flex flex-row gap-6">
       <Credits credits={user.credits} />
-      <Menu username={user.username} />
+      <Menu />
     </div>
   )
 }
 
 function Credits({ credits }: { credits: number }) {
   return (
-    <div
-      className={cn(
-        "flex flex-row items-center gap-x-1",
-        credits <= PROJECT_COST && "text-destructive"
-      )}
-    >
-      <BadgeCentIcon className="size-5" />
-      <span className="font-bold">{credits}</span>
-    </div>
+    <Button variant={"ghost"} asChild>
+      <Link
+        href={"/purchase-credits"}
+        className={cn(
+          "flex flex-row items-center gap-x-1",
+          credits <= PROJECT_COST && "text-destructive"
+        )}
+      >
+        <BadgeCentIcon className="size-5" />
+        <span className="font-bold">{credits}</span>
+      </Link>
+    </Button>
   )
 }
 
-function Menu({ username }: { username: string }) {
+function Menu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar tabIndex={0}>
-          <AvatarFallback className="border">
-            <UserIcon className="stroke-muted-foreground" />
-          </AvatarFallback>
-        </Avatar>
+        <Button className="rounded-full p-0">
+          <Avatar>
+            <AvatarFallback>
+              <UserIcon className="stroke-muted-foreground" />
+            </AvatarFallback>
+          </Avatar>
+        </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent forceMount className="translate-y-5">
