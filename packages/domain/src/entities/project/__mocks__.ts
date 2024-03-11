@@ -6,7 +6,8 @@ export const mockProjectRepository = (): Project.Repository => {
     getAll: jest.fn(),
     getById: jest.fn(),
     delete: jest.fn(),
-    transact: jest.fn().mockImplementation(async (tx) => await tx(mock))
+    createRole: jest.fn(),
+    getRole: jest.fn()
   }
 
   return mock

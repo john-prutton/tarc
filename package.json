@@ -2,11 +2,15 @@
   "name": "tarc",
   "private": true,
   "scripts": {
-    "build": "turbo build",
-    "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "ts:check": "tsc --noEmit"
+    "watch-ts-check": "tsc --noEmit --watch",
+    "test": "dotenv -e .env.development.local \"pnpm db-push && pnpm jest\"",
+    "dev": "dotenv -e .env.development.local \"pnpm db-push && pnpm app-dev\"",
+    "build": "pnpm --filter @repo/web-app build",
+    "db-push": "pnpm --filter @repo/drizzle-database push",
+    "db-studio": "pnpm --filter @repo/drizzle-database studio",
+    "app-dev": "pnpm --filter @repo/web-app dev"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
@@ -17,7 +21,8 @@
     "jest": "latest",
     "@types/jest": "^29.5.12",
     "ts-jest": "^29.1.2",
-    "ts-node": "latest"
+    "ts-node": "latest",
+    "dotenv-cli": "^7.3.0"
   },
   "packageManager": "pnpm@8.9.0",
   "engines": {

@@ -6,4 +6,9 @@ export type Repository = {
   getByUsername: (
     username: User.Entity["username"]
   ) => AsyncTaskResult<User.Entity>
+  getById: (id: User.Entity["id"]) => AsyncTaskResult<User.Entity>
+  setCredits: (
+    userId: User.Entity["id"],
+    credits: User.Entity["credits"]
+  ) => AsyncTaskResult<void>
 }

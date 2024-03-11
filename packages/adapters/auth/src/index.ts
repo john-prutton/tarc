@@ -1,6 +1,7 @@
+import { generateId, Lucia, Scrypt, type Adapter } from "lucia"
+
 import type { Auth } from "@repo/domain/adapters"
-import type { Session, User } from "@repo/domain/entities"
-import { DatabaseUser, generateId, Lucia, Scrypt, type Adapter } from "lucia"
+import type { User } from "@repo/domain/entities"
 
 declare module "lucia" {
   interface Register {
@@ -11,7 +12,8 @@ declare module "lucia" {
 
 export function createLucia(databaseRepository: Auth.Repository): Auth.Adapter {
   const dbAdapter: Adapter = {
-    deleteExpiredSessions: databaseRepository.deleteExpiredSessions,
+    deleteExpiredSessions: () =>
+      databaseRepository.deleteExpiredSessions(new Date()),
     deleteSession: databaseRepository.deleteSession,
     deleteUserSessions: databaseRepository.deleteUserSessions,
     updateSessionExpiration: databaseRepository.updateSessionExpiration,
@@ -31,7 +33,8 @@ export function createLucia(databaseRepository: Auth.Repository): Auth.Adapter {
           id: res[1].id,
           attributes: {
             hashedPassword: res[1].hashedPassword,
-            username: res[1].username
+            username: res[1].username,
+            credits: res[1].credits
           }
         }
       ]

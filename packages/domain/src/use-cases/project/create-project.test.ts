@@ -1,60 +1,127 @@
-import { Project } from "../../entities"
-import { mockProjectRepository } from "../../entities/project/__mocks__"
-import { createProject } from "./create-project"
+import { mockDatabaseRepository } from "../../__mocks__"
+import { Project, User } from "../../entities"
+import { AsyncTaskResult, TaskResult } from "../../types"
+import { createProject, NEW_PROJECT_COST } from "./create-project"
 
-const mockedProjectRepository = mockProjectRepository()
+const mockedDatabaseRepository = mockDatabaseRepository()
+
+const newProject: Project.NewEntity = {
+  name: "test-project-name"
+}
 
 describe("create-new-project", () => {
-  it("fails if it cant get existing projects", async () => {
-    const newProject: Project.NewEntity = { name: "test" }
-
-    jest.spyOn(mockedProjectRepository, "getAll").mockResolvedValueOnce({
+  it("fails if invalid user id is passed", async () => {
+    // mock the user check
+    const mockedGetUserResult = {
       success: false,
-      error: { code: "SERVER_ERROR", message: "test-error" }
-    })
+      error: {
+        code: "NOT_FOUND",
+        message: "test-message"
+      }
+    } as const
 
-    const result = await createProject(newProject, mockedProjectRepository)
+    jest
+      .spyOn(mockedDatabaseRepository.user, "getById")
+      .mockResolvedValueOnce(mockedGetUserResult)
 
-    expect(result.success).toBeFalsy()
-    if (result.success) return
+    // try
+    const result = await createProject(
+      { newProject, userId: "non-existent-user" },
+      mockedDatabaseRepository
+    )
 
-    expect(result.error.code).toBe("SERVER_ERROR")
+    expect(result).toEqual(mockedGetUserResult)
   })
 
-  it("fails if there are too many projects", async () => {
-    const newProject: Project.NewEntity = { name: "test" }
-
-    jest.spyOn(mockedProjectRepository, "getAll").mockResolvedValueOnce({
+  it("fails with insufficient credits", async () => {
+    // mock the user check
+    const mockedGetUserResult: TaskResult<User.Entity> = {
       success: true,
-      data: new Array(3)
+      data: {
+        id: "test",
+        username: "test-username",
+        hashedPassword: "test-hashed-password",
+        credits: NEW_PROJECT_COST - 1
+      }
+    } as const
+
+    jest
+      .spyOn(mockedDatabaseRepository.user, "getById")
+      .mockResolvedValueOnce(mockedGetUserResult)
+
+    // try
+    const result = await createProject(
+      { newProject, userId: mockedGetUserResult.data.id },
+      mockedDatabaseRepository
+    )
+
+    expect(result).toEqual<TaskResult<void>>({
+      success: false,
+      error: {
+        code: "NOT_ALLOWED",
+        message: "You don't have enough credits to create a new project"
+      }
     })
-
-    const result = await createProject(newProject, mockedProjectRepository)
-
-    expect(result.success).toBeFalsy()
-    if (result.success) return
-
-    expect(result.error.code).toBe("NOT_ALLOWED")
   })
 
-  it("passes if there are not too many projects", async () => {
-    const newProject: Project.NewEntity = { name: "test-name" }
-
-    jest.spyOn(mockedProjectRepository, "getAll").mockResolvedValueOnce({
+  it("passes with sufficient credits", async () => {
+    // mock the user check
+    const mockedGetUserResult: TaskResult<User.Entity> = {
       success: true,
-      data: new Array(0)
-    })
+      data: {
+        id: "test",
+        username: "test-username",
+        hashedPassword: "test-hashed-password",
+        credits: NEW_PROJECT_COST
+      }
+    } as const
+    jest
+      .spyOn(mockedDatabaseRepository.user, "getById")
+      .mockResolvedValueOnce(mockedGetUserResult)
 
-    jest.spyOn(mockedProjectRepository, "create").mockResolvedValueOnce({
+    // mock the set credits call
+    jest
+      .spyOn(mockedDatabaseRepository.user, "setCredits")
+      .mockResolvedValueOnce({ success: true, data: undefined })
+
+    // mock the create project call
+    const mockedCreateProjectResult: TaskResult<Project.Entity> = {
       success: true,
-      data: { id: "test-id", name: "test-name" }
-    })
+      data: { ...newProject, id: "test-id" }
+    } as const
+    jest
+      .spyOn(mockedDatabaseRepository.project, "create")
+      .mockResolvedValueOnce(mockedCreateProjectResult)
 
-    const result = await createProject(newProject, mockedProjectRepository)
+    // mock the create role call
+    const mockedCreateRoleResult: TaskResult<void> = {
+      success: true,
+      data: undefined
+    } as const
+    const t = jest
+      .spyOn(mockedDatabaseRepository.project, "createRole")
+      .mockResolvedValueOnce(mockedCreateRoleResult)
 
-    expect(result.success).toBeTruthy()
-    if (!result.success) return
+    // try
+    const result = await createProject(
+      { newProject, userId: "non-existent-user" },
+      mockedDatabaseRepository
+    )
 
-    expect(result.data.name).toBe("test-name")
+    // expect
+    expect(result).toEqual(mockedCreateProjectResult)
+
+    expect(mockedDatabaseRepository.user.setCredits).toHaveBeenLastCalledWith(
+      mockedGetUserResult.data.id,
+      mockedGetUserResult.data.credits - NEW_PROJECT_COST
+    )
+
+    expect(
+      mockedDatabaseRepository.project.createRole
+    ).toHaveBeenLastCalledWith(
+      mockedCreateProjectResult.data.id,
+      mockedGetUserResult.data.id,
+      "Owner"
+    )
   })
 })

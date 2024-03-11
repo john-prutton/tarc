@@ -13,3 +13,17 @@ export const mockAuthAdapter = (): Auth.Adapter => {
 
   return mock
 }
+
+export const mockAuthRepository = (): Auth.Repository => {
+  const mock: Auth.Repository = {
+    deleteExpiredSessions: jest.fn(),
+    deleteSession: jest.fn(),
+    deleteUserSessions: jest.fn(),
+    getSessionAndUser: jest.fn(),
+    getUserSessions: jest.fn(),
+    setSession: jest.fn(),
+    updateSessionExpiration: jest.fn()
+  }
+
+  return mock
+}

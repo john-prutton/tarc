@@ -1,0 +1,25 @@
+{
+  "name": "@repo/drizzle-database",
+  "version": "0.0.0",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "index.ts",
+  "scripts": {
+    "test": "jest",
+    "generate": "drizzle-kit generate:sqlite",
+    "push": "drizzle-kit push:sqlite",
+    "studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.5.2",
+    "@repo/domain": "workspace:*",
+    "drizzle-orm": "^0.29.4"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/ts-config": "workspace:*",
+    "drizzle-kit": "^0.20.14"
+  }
+}
