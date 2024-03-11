@@ -5,7 +5,7 @@ export default async function PurchaseCreditsPage() {
   const pricingOptions = await getCreditPricingOptions()
 
   return (
-    <main className="flex flex-row">
+    <main className="mx-auto flex max-w-lg flex-col gap-y-4 p-4">
       {pricingOptions.map((option, i, array) => {
         const savings =
           i === 0

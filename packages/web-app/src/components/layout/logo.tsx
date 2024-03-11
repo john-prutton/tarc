@@ -4,8 +4,8 @@ import { Button } from "../ui/button"
 
 export function Logo() {
   return (
-    <Button asChild variant={"ghost"}>
-      <Link href={"/"} className="gap-x-2 px-0">
+    <Button asChild variant={"ghost"} className="gap-x-2 px-0">
+      <Link href={"/"}>
         <Icon className="size-10" />
         <span className="text-5xl font-black leading-10">Tarc</span>
       </Link>
