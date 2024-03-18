@@ -1,6 +1,7 @@
 import { createHmac } from "crypto"
 
 import { PaymentGateway } from "@repo/domain/adapters"
+import { recordPurchase } from "@repo/domain/use-cases/credits/record-credit-purchase"
 
 import { PAYSTACK_SECRET } from "../env"
 
@@ -32,36 +33,20 @@ export const handleWebhook: PaymentGateway.Repository["handleWebhook"] = async (
     }
 
   // Get metadata
-  const userId = body.data.metadata.userId
-  const credits = +body.data.metadata.credits
+  const reference = body.data.reference
 
-  if (typeof userId !== "string" || typeof credits !== "number")
+  if (typeof reference !== "string")
     return {
       success: false,
-      error: { code: "NOT_ALLOWED", message: "Malformed metadata" }
+      error: { code: "NOT_ALLOWED", message: "Malformed request: no reference" }
     }
 
-  // Update users credits
-  const updateCreditsResult = await databaseAdapter.transaction(
-    async (databaseAdapter) => {
-      // Find user
-      const userResult = await databaseAdapter.user.getById(userId)
-      if (!userResult.success) return userResult
-
-      const userCredits = userResult.data.credits
-
-      // Set credits
-      const updateResult = await databaseAdapter.user.setCredits(
-        userId,
-        userCredits + credits
-      )
-      if (!updateResult.success) return updateResult
-
-      return { success: true, data: undefined }
-    }
+  // Record payment
+  const result = await recordPurchase(
+    { reference },
+    { database: databaseAdapter }
   )
-
-  if (!updateCreditsResult.success) return updateCreditsResult
+  if (!result?.success) return result
 
   return { success: true, data: undefined }
 }

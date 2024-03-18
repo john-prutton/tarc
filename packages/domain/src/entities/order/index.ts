@@ -19,6 +19,9 @@ export type NewEntity = Pick<
 
 export type Repository = {
   createNewOrder: (newOrder: NewEntity) => AsyncTaskResult<void>
-  getOrderByReference: (newOrder: Entity) => AsyncTaskResult<Entity>
-  updateOrderStatus: (newStatus: Entity["status"]) => AsyncTaskResult<void>
+  getOrderByReference: (ref: Entity["reference"]) => AsyncTaskResult<Entity>
+  updateOrderStatus: (
+    ref: Entity["reference"],
+    newStatus: Entity["status"]
+  ) => AsyncTaskResult<void>
 }

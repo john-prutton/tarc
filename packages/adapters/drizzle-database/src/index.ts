@@ -352,17 +352,60 @@ export function createRepository(
       }
     },
 
-    async getOrderByReference(newOrder) {
-      return {
-        success: false,
-        error: { code: "SERVER_ERROR", message: "not implemented" }
+    async getOrderByReference(reference) {
+      try {
+        const [result] = await db
+          .select()
+          .from(ordersTable)
+          .where(eq(ordersTable.reference, reference))
+          .limit(1)
+
+        if (!result)
+          return {
+            success: false,
+            error: {
+              code: "NOT_FOUND",
+              message: "No order found with that reference"
+            }
+          }
+        else
+          return {
+            success: true,
+            data: result
+          }
+      } catch (error) {
+        return {
+          success: false,
+          error: { code: "SERVER_ERROR", message: `DB error of: ${error}` }
+        }
       }
     },
 
-    async updateOrderStatus(newStatus) {
-      return {
-        success: false,
-        error: { code: "SERVER_ERROR", message: "not implemented" }
+    async updateOrderStatus(reference, newStatus) {
+      try {
+        const result = await db
+          .update(ordersTable)
+          .set({ status: newStatus })
+          .where(eq(ordersTable.reference, reference))
+
+        if (result.rowsAffected !== 1)
+          return {
+            success: false,
+            error: {
+              code: "SERVER_ERROR",
+              message: "Failed to update order status"
+            }
+          }
+        else
+          return {
+            success: true,
+            data: undefined
+          }
+      } catch (error) {
+        return {
+          success: false,
+          error: { code: "SERVER_ERROR", message: `DB error of: ${error}` }
+        }
       }
     }
   }
