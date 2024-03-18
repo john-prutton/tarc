@@ -1,10 +1,10 @@
 import { and, eq, lte } from "drizzle-orm"
 
 import type { Auth, Database } from "@repo/domain/adapters"
-import type { Project, User } from "@repo/domain/entities"
+import type { Order, Project, User } from "@repo/domain/entities"
 
 import { createDb } from "./db"
-import { usersTable } from "./schema"
+import { ordersTable, usersTable } from "./schema"
 import { projectsTable } from "./schema/projects"
 import { sessionsTable } from "./schema/sessions"
 import { userProjectRolesTable } from "./schema/userProjectRoles"
@@ -326,6 +326,47 @@ export function createRepository(
     }
   }
 
+  const orderRepository: Order.Repository = {
+    async createNewOrder(newOrder) {
+      try {
+        const result = await db.insert(ordersTable).values(newOrder)
+
+        if (result.rowsAffected !== 1)
+          return {
+            success: false,
+            error: {
+              code: "SERVER_ERROR",
+              message: "Failed to create new order"
+            }
+          }
+        else
+          return {
+            success: true,
+            data: undefined
+          }
+      } catch (error) {
+        return {
+          success: false,
+          error: { code: "SERVER_ERROR", message: `DB error of: ${error}` }
+        }
+      }
+    },
+
+    async getOrderByReference(newOrder) {
+      return {
+        success: false,
+        error: { code: "SERVER_ERROR", message: "not implemented" }
+      }
+    },
+
+    async updateOrderStatus(newStatus) {
+      return {
+        success: false,
+        error: { code: "SERVER_ERROR", message: "not implemented" }
+      }
+    }
+  }
+
   const transaction: Database.Repository["transaction"] = async (txFn) => {
     try {
       const txRes = await db.transaction(async (txDb) => {
@@ -357,7 +398,8 @@ export function createRepository(
     transaction,
     project: projectRepository,
     user: userRepository,
-    auth: authRepository
+    auth: authRepository,
+    order: orderRepository
   }
 
   return dbRepository

@@ -1,5 +1,6 @@
 import { initializeCreditPurchase } from "."
-import { mockPaymentGateway } from "../../../__mocks__"
+import { mockDatabaseRepository, mockPaymentGateway } from "../../../__mocks__"
+import { Order } from "../../../entities"
 
 jest.mock("../get-credit-pricing-options", () => ({
   getCreditPricingOptions: jest
@@ -8,12 +9,44 @@ jest.mock("../get-credit-pricing-options", () => ({
 }))
 
 const mockedPaymentGateway = mockPaymentGateway()
+const mockedDatabase = mockDatabaseRepository()
 
 describe("initializeCreditPurchase", () => {
+  it("should return an error if the user is not found", async () => {
+    jest.spyOn(mockedDatabase.user, "getById").mockResolvedValueOnce({
+      success: false,
+      error: { code: "NOT_FOUND", message: "test-message" }
+    })
+    expect(
+      await initializeCreditPurchase(
+        {
+          userId: "non-existant",
+          pricingOption: 0
+        },
+        {
+          database: mockedDatabase,
+          paymentGateway: mockedPaymentGateway
+        }
+      )
+    ).toEqual({
+      success: false,
+      error: { code: "NOT_FOUND", message: "test-message" }
+    })
+  })
+
   it("should return an error if the pricing option is not found", async () => {
+    jest.spyOn(mockedDatabase.user, "getById").mockResolvedValueOnce({
+      success: true,
+      data: {
+        id: "test-user-id",
+        username: "test-user-name",
+        hashedPassword: "test-hashed-password",
+        credits: 100
+      }
+    })
     const result = await initializeCreditPurchase(
       { userId: "user123", pricingOption: 1 },
-      { paymentGateway: mockedPaymentGateway }
+      { paymentGateway: mockedPaymentGateway, database: mockedDatabase }
     )
 
     expect(result).toEqual({
@@ -26,6 +59,16 @@ describe("initializeCreditPurchase", () => {
   })
 
   it("should return an error if the payment gateway initialization fails", async () => {
+    jest.spyOn(mockedDatabase.user, "getById").mockResolvedValueOnce({
+      success: true,
+      data: {
+        id: "test-user-id",
+        username: "test-user-name",
+        hashedPassword: "test-hashed-password",
+        credits: 100
+      }
+    })
+
     jest
       .spyOn(mockedPaymentGateway, "initializePayment")
       .mockResolvedValueOnce({
@@ -35,12 +78,44 @@ describe("initializeCreditPurchase", () => {
 
     const result = await initializeCreditPurchase(
       { userId: "user123", pricingOption: 0 },
-      { paymentGateway: mockedPaymentGateway }
+      { paymentGateway: mockedPaymentGateway, database: mockedDatabase }
     )
 
     expect(result).toEqual({
       success: false,
       error: { code: "FETCH_ERROR", message: "Payment initialization failed" }
+    })
+  })
+
+  it("should return if it cant save the order to the database", async () => {
+    jest.spyOn(mockedPaymentGateway, "initializePayment").mockResolvedValue({
+      success: true,
+      data: { checkoutUrl: "https://example.com/checkout", reference: "ref123" }
+    })
+
+    jest.spyOn(mockedDatabase.user, "getById").mockResolvedValueOnce({
+      success: true,
+      data: {
+        id: "test-user-id",
+        username: "test-user-name",
+        hashedPassword: "test-hashed-password",
+        credits: 100
+      }
+    })
+
+    jest.spyOn(mockedDatabase.order, "createNewOrder").mockResolvedValueOnce({
+      success: false,
+      error: { code: "SERVER_ERROR", message: "test-message" }
+    })
+
+    const result = await initializeCreditPurchase(
+      { userId: "user123", pricingOption: 0 },
+      { paymentGateway: mockedPaymentGateway, database: mockedDatabase }
+    )
+
+    expect(result).toEqual({
+      success: false,
+      error: { code: "SERVER_ERROR", message: "test-message" }
     })
   })
 
@@ -50,14 +125,38 @@ describe("initializeCreditPurchase", () => {
       data: { checkoutUrl: "https://example.com/checkout", reference: "ref123" }
     })
 
+    jest.spyOn(mockedDatabase.user, "getById").mockResolvedValueOnce({
+      success: true,
+      data: {
+        id: "test-user-id",
+        username: "test-user-name",
+        hashedPassword: "test-hashed-password",
+        credits: 100
+      }
+    })
+
+    const createOrderMock = jest
+      .spyOn(mockedDatabase.order, "createNewOrder")
+      .mockResolvedValueOnce({
+        success: true,
+        data: undefined
+      })
+
     const result = await initializeCreditPurchase(
-      { userId: "user123", pricingOption: 0 },
-      { paymentGateway: mockedPaymentGateway }
+      { userId: "test-user-id", pricingOption: 0 },
+      { paymentGateway: mockedPaymentGateway, database: mockedDatabase }
     )
 
     expect(result).toEqual({
       success: true,
       data: { checkoutUrl: "https://example.com/checkout", reference: "ref123" }
+    })
+
+    expect(createOrderMock).toHaveBeenLastCalledWith<[Order.NewEntity]>({
+      userId: "test-user-id",
+      reference: "ref123",
+      price: 100,
+      credits: 1000
     })
   })
 })
