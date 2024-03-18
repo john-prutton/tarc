@@ -6,7 +6,7 @@ export type Entity = {
   userId: User.Entity["id"]
   reference: string
   createdAt: Date
-  paidAt: Date
+  paidAt: Date | null
   status: (typeof ORDER_STATUSES)[number]
   price: number
   credits: number

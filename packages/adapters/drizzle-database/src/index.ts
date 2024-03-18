@@ -385,7 +385,10 @@ export function createRepository(
       try {
         const result = await db
           .update(ordersTable)
-          .set({ status: newStatus })
+          .set({
+            status: newStatus,
+            paidAt: newStatus === "paid" ? new Date() : null
+          })
           .where(eq(ordersTable.reference, reference))
 
         if (result.rowsAffected !== 1)

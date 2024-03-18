@@ -13,9 +13,7 @@ export const ordersTable = sqliteTable("orders", {
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),
-  paidAt: integer("paid_at", { mode: "timestamp_ms" })
-    .notNull()
-    .$defaultFn(() => new Date()),
+  paidAt: integer("paid_at", { mode: "timestamp_ms" }),
   price: integer("price_in_cents").notNull(),
   credits: integer("credits_rewarded").notNull()
 })
