@@ -32,7 +32,7 @@ export const handleWebhook: PaymentGateway.Repository["handleWebhook"] = async (
       }
     }
 
-  // Get metadata
+  // Get reference
   const reference = body.data.reference
 
   if (typeof reference !== "string")
