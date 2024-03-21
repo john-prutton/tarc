@@ -8,3 +8,7 @@ export function createDb(config: Config) {
   const db = drizzle(client, { schema })
   return db
 }
+
+export type DatabaseRepository =
+  | ReturnType<typeof createDb>
+  | Parameters<Parameters<ReturnType<typeof createDb>["transaction"]>[0]>[0]

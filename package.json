@@ -5,24 +5,26 @@
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "watch-ts-check": "tsc --noEmit --watch",
-    "test": "dotenv -e .env.development.local \"pnpm db-push && pnpm jest\"",
+    "test": "dotenv -e .env.test.local \"pnpm db-push && pnpm jest\"",
     "dev": "dotenv -e .env.development.local \"pnpm db-push && pnpm app-dev\"",
     "build": "pnpm --filter @repo/web-app build",
     "db-push": "pnpm --filter @repo/drizzle-database push",
     "db-studio": "pnpm --filter @repo/drizzle-database studio",
-    "app-dev": "pnpm --filter @repo/web-app dev"
+    "app-dev": "pnpm --filter @repo/web-app dev",
+    "on-test": "dotenv -e .env.test.local -- pnpm"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/prettier-config": "workspace:*",
     "@repo/ts-config": "workspace:*",
-    "turbo": "latest",
-    "typescript": "^5.3.3",
-    "jest": "latest",
     "@types/jest": "^29.5.12",
+    "dotenv-cli": "^7.3.0",
+    "jest": "latest",
+    "jest-serial-runner": "^1.2.1",
     "ts-jest": "^29.1.2",
     "ts-node": "latest",
-    "dotenv-cli": "^7.3.0"
+    "turbo": "latest",
+    "typescript": "^5.3.3"
   },
   "packageManager": "pnpm@8.9.0",
   "engines": {
