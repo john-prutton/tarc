@@ -8,7 +8,7 @@ export const ordersTable = sqliteTable("orders", {
   reference: text("reference").primaryKey().notNull(),
   userId: text("user_id")
     .notNull()
-    .references(() => usersTable.id),
+    .references(() => usersTable.id, { onDelete: "cascade" }),
   status: text("status", { enum: ORDER_STATUSES }).notNull().default("pending"),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()

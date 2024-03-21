@@ -410,6 +410,31 @@ export function createRepository(
           error: { code: "SERVER_ERROR", message: `DB error of: ${error}` }
         }
       }
+    },
+
+    async updateExpiredOrders(expiryDate) {
+      const expiredOrders = db
+        .select({ reference: ordersTable.reference })
+        .from(ordersTable)
+        .where(
+          and(
+            lte(ordersTable.createdAt, expiryDate),
+            eq(ordersTable.status, "pending")
+          )
+        )
+
+      const updateQuery = db
+        .with(db.$with("expired_orders").as(expiredOrders))
+        .update(ordersTable)
+        .set({ status: "abandoned" })
+        .where(eq(ordersTable.reference, expiredOrders))
+
+      const results = await updateQuery
+
+      return {
+        success: true,
+        data: results.rowsAffected
+      }
     }
   }
 

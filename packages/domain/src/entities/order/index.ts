@@ -24,4 +24,5 @@ export type Repository = {
     ref: Entity["reference"],
     newStatus: Entity["status"]
   ) => AsyncTaskResult<void>
+  updateExpiredOrders: (expiryDate: Date) => AsyncTaskResult<number>
 }
