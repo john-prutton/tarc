@@ -1,7 +1,7 @@
-import { recordPurchase } from "."
+import { recordOrder } from "."
 import { mockDatabaseRepository } from "../../../__mocks__"
 
-describe("recordPurchase", () => {
+describe("recordOrder", () => {
   const database = mockDatabaseRepository()
 
   it("should fail: order not found", async () => {
@@ -11,7 +11,7 @@ describe("recordPurchase", () => {
       error: { code: "NOT_FOUND", message: "test-not-found" }
     })
 
-    const result = await recordPurchase(
+    const result = await recordOrder(
       { reference: "fake-reference" },
       { database }
     )
@@ -48,7 +48,7 @@ describe("recordPurchase", () => {
     })
 
     // try
-    const result = await recordPurchase(
+    const result = await recordOrder(
       { reference: fakeOrder.reference },
       { database }
     )
@@ -95,7 +95,7 @@ describe("recordPurchase", () => {
     })
 
     // try
-    const result = await recordPurchase(
+    const result = await recordOrder(
       { reference: fakeOrder.reference },
       { database }
     )
@@ -147,7 +147,7 @@ describe("recordPurchase", () => {
     })
 
     // try
-    const result = await recordPurchase(
+    const result = await recordOrder(
       { reference: fakeOrder.reference },
       { database }
     )
@@ -203,7 +203,7 @@ describe("recordPurchase", () => {
       })
 
     // try
-    const result = await recordPurchase(
+    const result = await recordOrder(
       { reference: fakeOrder.reference },
       { database }
     )

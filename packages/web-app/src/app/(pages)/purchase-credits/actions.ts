@@ -3,8 +3,8 @@
 import { AsyncTaskResult } from "@repo/domain/types"
 import {
   getCreditPricingOptions,
-  initializeCreditPurchase
-} from "@repo/domain/use-cases/credits"
+  initializeOrder
+} from "@repo/domain/use-cases/orders"
 
 import { databaseAdapter, paymentAdapter } from "@/lib/adapters"
 import { tryGetAuthedUser } from "@/lib/auth/util"
@@ -28,7 +28,7 @@ export async function tryGeneratePurchaseLink({
     }
 
   // try initialize
-  return await initializeCreditPurchase(
+  return await initializeOrder(
     { pricingOption, userId: user.id },
     { paymentGateway: paymentAdapter, database: databaseAdapter }
   )

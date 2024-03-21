@@ -1,4 +1,4 @@
-import { initializeCreditPurchase } from "."
+import { initializeOrder } from "."
 import { mockDatabaseRepository, mockPaymentGateway } from "../../../__mocks__"
 import { Order } from "../../../entities"
 
@@ -11,14 +11,14 @@ jest.mock("../get-credit-pricing-options", () => ({
 const mockedPaymentGateway = mockPaymentGateway()
 const mockedDatabase = mockDatabaseRepository()
 
-describe("initializeCreditPurchase", () => {
+describe("initializeOrder", () => {
   it("should return an error if the user is not found", async () => {
     jest.spyOn(mockedDatabase.user, "getById").mockResolvedValueOnce({
       success: false,
       error: { code: "NOT_FOUND", message: "test-message" }
     })
     expect(
-      await initializeCreditPurchase(
+      await initializeOrder(
         {
           userId: "non-existant",
           pricingOption: 0
@@ -44,7 +44,7 @@ describe("initializeCreditPurchase", () => {
         credits: 100
       }
     })
-    const result = await initializeCreditPurchase(
+    const result = await initializeOrder(
       { userId: "user123", pricingOption: 1 },
       { paymentGateway: mockedPaymentGateway, database: mockedDatabase }
     )
@@ -76,7 +76,7 @@ describe("initializeCreditPurchase", () => {
         error: { code: "FETCH_ERROR", message: "Payment initialization failed" }
       })
 
-    const result = await initializeCreditPurchase(
+    const result = await initializeOrder(
       { userId: "user123", pricingOption: 0 },
       { paymentGateway: mockedPaymentGateway, database: mockedDatabase }
     )
@@ -108,7 +108,7 @@ describe("initializeCreditPurchase", () => {
       error: { code: "SERVER_ERROR", message: "test-message" }
     })
 
-    const result = await initializeCreditPurchase(
+    const result = await initializeOrder(
       { userId: "user123", pricingOption: 0 },
       { paymentGateway: mockedPaymentGateway, database: mockedDatabase }
     )
@@ -142,7 +142,7 @@ describe("initializeCreditPurchase", () => {
         data: undefined
       })
 
-    const result = await initializeCreditPurchase(
+    const result = await initializeOrder(
       { userId: "test-user-id", pricingOption: 0 },
       { paymentGateway: mockedPaymentGateway, database: mockedDatabase }
     )

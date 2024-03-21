@@ -7,7 +7,7 @@ type Dependencies = {
   database: Database.Repository
 }
 
-export async function recordPurchase(
+export async function recordOrder(
   { reference }: Inputs,
   { database }: Dependencies
 ) {

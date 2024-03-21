@@ -13,7 +13,7 @@ type Inputs = {
   pricingOption: number
 }
 
-export async function initializeCreditPurchase(
+export async function initializeOrder(
   { pricingOption, userId }: Inputs,
   { paymentGateway, database }: Dependencies
 ): AsyncTaskResult<{ checkoutUrl: string; reference: string }> {

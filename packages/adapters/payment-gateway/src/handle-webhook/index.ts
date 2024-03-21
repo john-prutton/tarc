@@ -1,7 +1,7 @@
 import { createHmac } from "crypto"
 
 import { PaymentGateway } from "@repo/domain/adapters"
-import { recordPurchase } from "@repo/domain/use-cases/credits/record-credit-purchase"
+import { recordOrder } from "@repo/domain/use-cases/orders"
 
 import { PAYSTACK_SECRET } from "../env"
 
@@ -42,10 +42,7 @@ export const handleWebhook: PaymentGateway.Repository["handleWebhook"] = async (
     }
 
   // Record payment
-  const result = await recordPurchase(
-    { reference },
-    { database: databaseAdapter }
-  )
+  const result = await recordOrder({ reference }, { database: databaseAdapter })
   if (!result?.success) return result
 
   return { success: true, data: undefined }

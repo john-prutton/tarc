@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { flagExpiredOrders } from "@repo/domain/use-cases/orders/flag-expired-orders"
+import { flagExpiredOrders } from "@repo/domain/use-cases/orders"
 
 import { databaseAdapter } from "@/lib/adapters"
 

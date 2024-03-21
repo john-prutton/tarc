@@ -1,5 +1,5 @@
 import { mockDatabaseRepository } from "@repo/domain/__mocks__"
-import { recordPurchase } from "@repo/domain/use-cases/credits/record-credit-purchase"
+import { recordOrder } from "@repo/domain/use-cases/orders/record-order"
 
 import { handleWebhook } from "./index"
 
@@ -11,10 +11,8 @@ jest.mock("crypto", () => ({
   })
 }))
 
-jest.mock("@repo/domain/use-cases/credits/record-credit-purchase", () => ({
-  recordPurchase: jest
-    .fn()
-    .mockResolvedValue({ success: true, data: undefined })
+jest.mock("@repo/domain/use-cases/credits/record-order", () => ({
+  recordOrder: jest.fn().mockResolvedValue({ success: true, data: undefined })
 }))
 
 const mockRequest = (body: any, signature: string): Request => {
@@ -98,7 +96,7 @@ describe("handleWebhook", () => {
     const result = await handleWebhook({ req }, { databaseAdapter: db })
 
     expect(result).toEqual({ success: true })
-    expect(recordPurchase).toHaveBeenCalledWith(
+    expect(recordOrder).toHaveBeenCalledWith(
       {
         reference: body.data.reference
       },
