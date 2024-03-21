@@ -17,13 +17,14 @@
     "@repo/eslint-config": "workspace:*",
     "@repo/prettier-config": "workspace:*",
     "@repo/ts-config": "workspace:*",
-    "turbo": "latest",
-    "typescript": "^5.3.3",
-    "jest": "latest",
     "@types/jest": "^29.5.12",
+    "dotenv-cli": "^7.3.0",
+    "jest": "latest",
+    "jest-serial-runner": "^1.2.1",
     "ts-jest": "^29.1.2",
     "ts-node": "latest",
-    "dotenv-cli": "^7.3.0"
+    "turbo": "latest",
+    "typescript": "^5.3.3"
   },
   "packageManager": "pnpm@8.9.0",
   "engines": {
