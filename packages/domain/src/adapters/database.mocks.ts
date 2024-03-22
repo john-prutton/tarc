@@ -1,15 +1,20 @@
 import { Database } from "."
-import { mockAuthRepository, mockProjectRepository } from "../__mocks__"
-import { mockOrderRepository } from "../entities/order/__mocks__"
-import { mockUserRepository } from "../entities/user/__mocks__"
+import {
+  mockAuthRepository,
+  mockOrderRepository,
+  mockProjectRepository,
+  mockTeamRepository,
+  mockUserRepository
+} from "../__mocks__"
 
 export const mockDatabaseRepository = (): Database.Repository => {
   const mock: Database.Repository = {
     transaction: jest.fn().mockImplementation(async (fn) => fn(mock)),
     auth: mockAuthRepository(),
+    order: mockOrderRepository(),
     project: mockProjectRepository(),
-    user: mockUserRepository(),
-    order: mockOrderRepository()
+    team: mockTeamRepository(),
+    user: mockUserRepository()
   }
 
   return mock

@@ -11,7 +11,8 @@ export function createRepository(db: DatabaseRepository) {
     user: RepositoryFactories.createUserRepository(db),
     project: RepositoryFactories.createProjectRepository(db),
     auth: RepositoryFactories.createAuthRepository(db),
-    order: RepositoryFactories.createOrderRepository(db)
+    order: RepositoryFactories.createOrderRepository(db),
+    team: RepositoryFactories.createTeamRepository(db)
   }
 
   return dbRepository
