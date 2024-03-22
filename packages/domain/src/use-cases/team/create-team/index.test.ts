@@ -141,7 +141,7 @@ describe("createTeam", () => {
 
     jest.spyOn(mockedDb.team, "createTeam").mockResolvedValue({
       success: true,
-      data: { id: "team-id", ...newTeam }
+      data: { id: 1, ...newTeam }
     })
 
     jest.spyOn(mockedDb.team, "setUserRoleInTeam").mockResolvedValue({
@@ -165,7 +165,7 @@ describe("createTeam", () => {
     )
     expect(mockedDb.team.createTeam).toHaveBeenCalledWith(newTeam)
     expect(mockedDb.team.setUserRoleInTeam).toHaveBeenCalledWith(
-      "team-id",
+      1,
       fakeUser.id,
       "owner"
     )
@@ -192,7 +192,7 @@ describe("createTeam", () => {
 
     jest.spyOn(mockedDb.team, "createTeam").mockResolvedValue({
       success: true,
-      data: { id: "team-id", ...newTeam }
+      data: { id: 1, ...newTeam }
     })
 
     jest.spyOn(mockedDb.team, "setUserRoleInTeam").mockResolvedValue({
@@ -207,7 +207,7 @@ describe("createTeam", () => {
 
     expect(result).toEqual({
       success: true,
-      data: { id: "team-id", name: newTeam.name }
+      data: { id: 1, name: newTeam.name }
     })
     expect(mockedDb.user.getById).toHaveBeenCalledWith(fakeUser.id)
     expect(mockedDb.user.setCredits).toHaveBeenCalledWith(
@@ -216,7 +216,7 @@ describe("createTeam", () => {
     )
     expect(mockedDb.team.createTeam).toHaveBeenCalledWith(newTeam)
     expect(mockedDb.team.setUserRoleInTeam).toHaveBeenCalledWith(
-      "team-id",
+      1,
       fakeUser.id,
       "owner"
     )
