@@ -1,4 +1,4 @@
-import { and, eq, lte } from "drizzle-orm"
+import { and, eq, inArray, lte } from "drizzle-orm"
 
 import type { Order } from "@repo/domain/entities"
 
@@ -109,7 +109,7 @@ export function createOrderRepository(
         .with(db.$with("expired_orders").as(expiredOrders))
         .update(ordersTable)
         .set({ status: "abandoned" })
-        .where(eq(ordersTable.reference, expiredOrders))
+        .where(inArray(ordersTable.reference, expiredOrders))
 
       const results = await updateQuery
 

@@ -27,12 +27,19 @@ describeDatabaseTest("orders", (db, repository) => {
         price: 1,
         createdAt: new Date(Date.now() - 1000 * 1 * 60 * 60 * 5)
       })
+      await db.insert(ordersTable).values({
+        userId: fakeUser.id,
+        reference: "ref3",
+        credits: 1,
+        price: 1,
+        createdAt: new Date(Date.now() - 1000 * 1 * 60 * 60 * 5)
+      })
 
       // test
       expect(
         // @ts-expect-error
         (await repository.order.updateExpiredOrders(new Date())).data
-      ).toBe(1)
+      ).toBe(2)
 
       expect(
         // @ts-expect-error
