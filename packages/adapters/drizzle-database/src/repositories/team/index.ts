@@ -126,6 +126,34 @@ export function createTeamRepository(db: DatabaseRepository): Team.Repository {
           data: undefined
         }
       })
+    },
+
+    async getUserRoleInTeam(userId, teamId) {
+      return withDbTryCatch(async () => {
+        const [result] = await db
+          .select({ role: userTeamRolesTable.role })
+          .from(userTeamRolesTable)
+          .where(
+            and(
+              eq(userTeamRolesTable.teamId, teamId),
+              eq(userTeamRolesTable.userId, userId)
+            )
+          )
+
+        if (!result)
+          return {
+            success: false,
+            error: {
+              code: "NOT_FOUND",
+              message: "User not found in team"
+            }
+          }
+
+        return {
+          success: true,
+          data: result.role
+        }
+      })
     }
   }
 }

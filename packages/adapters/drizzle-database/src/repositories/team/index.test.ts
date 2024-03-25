@@ -1,3 +1,5 @@
+import { and, eq } from "drizzle-orm"
+
 import { describeDatabaseTest } from "../../helpers"
 import { teamsTable, usersTable, userTeamRolesTable } from "../../schema"
 
@@ -134,5 +136,80 @@ describeDatabaseTest("Team Repository", (db, repository) => {
     expect(await db.select().from(userTeamRolesTable)).toEqual([
       { teamId: createdTeam!.id, userId: createdUser!.id, role: "member" }
     ])
+  })
+
+  it("should get a user's role in a team", async () => {
+    // create a team and a user
+    const [createdTeam] = await db
+      .insert(teamsTable)
+      .values({ name: "Test Team" })
+      .returning()
+    const [createdUser] = await db
+      .insert(usersTable)
+      .values({
+        username: "test",
+        hashedPassword: "test",
+        credits: 100,
+        id: "1"
+      })
+      .returning()
+    const [createdRole] = await db
+      .insert(userTeamRolesTable)
+      .values({
+        userId: createdUser!.id,
+        teamId: createdTeam!.id,
+        role: "owner"
+      })
+      .returning()
+
+    // create another user,team, and role for inference
+    const [createdTeam2] = await db
+      .insert(teamsTable)
+      .values({ name: "Test Team 2" })
+      .returning()
+
+    const [createdUser2] = await db
+      .insert(usersTable)
+      .values({
+        username: "test2",
+        hashedPassword: "test2",
+        credits: 100,
+        id: "2"
+      })
+      .returning()
+
+    const [createdRole2] = await db
+      .insert(userTeamRolesTable)
+      .values({
+        userId: createdUser2!.id,
+        teamId: createdTeam2!.id,
+        role: "member"
+      })
+      .returning()
+
+    // try to get the user's role in the team
+    const result = await repository.team.getUserRoleInTeam(
+      createdUser!.id,
+      createdTeam!.id
+    )
+    expect(result).toEqual({ success: true, data: "owner" })
+
+    // change the user's role in the team
+    await db
+      .update(userTeamRolesTable)
+      .set({ role: "member" })
+      .where(
+        and(
+          eq(userTeamRolesTable.userId, createdUser!.id),
+          eq(userTeamRolesTable.teamId, createdTeam!.id)
+        )
+      )
+
+    // try to get the user's role in the team
+    const result2 = await repository.team.getUserRoleInTeam(
+      createdUser!.id,
+      createdTeam!.id
+    )
+    expect(result2).toEqual({ success: true, data: "member" })
   })
 })
