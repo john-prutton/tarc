@@ -6,8 +6,10 @@ import {
   ordersTable,
   projectsTable,
   sessionsTable,
+  teamsTable,
   userProjectRolesTable,
-  usersTable
+  usersTable,
+  userTeamRolesTable
 } from "../schema"
 
 export async function clearAllTables(db: DatabaseRepository) {
@@ -16,7 +18,9 @@ export async function clearAllTables(db: DatabaseRepository) {
     projectsTable,
     sessionsTable,
     userProjectRolesTable,
-    usersTable
+    usersTable,
+    teamsTable,
+    userTeamRolesTable
   ]) {
     await db.delete(table)
   }
