@@ -4,8 +4,8 @@
   "scripts": {
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "test": "pnpm on-test \"pnpm db-push && pnpm jest\"",
     "watch-ts-check": "tsc --noEmit --watch",
-    "test": "dotenv -e .env.test.local \"pnpm db-push && pnpm jest\"",
     "dev": "dotenv -e .env.development.local \"pnpm db-push && pnpm app-dev\"",
     "build": "pnpm --filter @repo/web-app build",
     "db-push": "pnpm --filter @repo/drizzle-database push",
