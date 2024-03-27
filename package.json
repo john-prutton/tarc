@@ -11,7 +11,8 @@
     "db-push": "pnpm --filter @repo/drizzle-database push",
     "db-studio": "pnpm --filter @repo/drizzle-database studio",
     "app-dev": "pnpm --filter @repo/web-app dev",
-    "on-test": "dotenv -e .env.test.local -- pnpm"
+    "on-test": "dotenv -e .env.test.local -- pnpm",
+    "on-dev": "dotenv -e .env.development.local -- pnpm"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
