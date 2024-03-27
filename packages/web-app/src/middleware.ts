@@ -9,8 +9,13 @@ function checkAuthToken() {
 }
 
 export async function middleware(req: NextRequest) {
+  const url = new URL(req.url)
+  const pathname = url.pathname
+
   const hasAuthToken = checkAuthToken()
-  if (!hasAuthToken) return NextResponse.redirect(new URL("/", req.url))
+
+  if (!hasAuthToken)
+    return NextResponse.redirect(new URL(`/auth?redirect=${pathname}`, req.url))
 }
 
 export const config = {

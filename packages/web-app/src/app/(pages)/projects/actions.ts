@@ -7,37 +7,27 @@ import { AsyncTaskResult, TaskResult } from "@repo/domain/types"
 import { createProject, deleteProject } from "@repo/domain/use-cases/project"
 
 import { databaseAdapter } from "@/lib/adapters"
-import { tryGetAuthedUser } from "@/lib/auth/util"
+import { withAuthedUser } from "@/lib/auth/utils"
 
 export async function tryCreateProject(
   state: TaskResult<Project.Entity> | undefined,
   formData: FormData
 ): AsyncTaskResult<Project.Entity> {
-  // auth check for user
-  const user = await tryGetAuthedUser()
-  if (!user)
-    return {
-      success: false,
-      error: {
-        code: "NOT_ALLOWED",
-        message: "You must be signed in to do this."
-      }
+  return withAuthedUser(async (user) => {
+    // get data from form
+    const newProject: Project.NewEntity = {
+      name: formData.get("name") as string
     }
+    // try create project
+    const result = await createProject(
+      { newProject, userId: user.id },
+      databaseAdapter
+    )
 
-  // get data from form
-  const newProject: Project.NewEntity = {
-    name: formData.get("name") as string
-  }
+    if (result.success) revalidatePath("/")
 
-  // try create project
-  const result = await createProject(
-    { newProject, userId: user.id },
-    databaseAdapter
-  )
-
-  if (result.success) revalidatePath("/")
-
-  return result
+    return result
+  })
 }
 
 export async function getAllProjects() {
@@ -45,24 +35,15 @@ export async function getAllProjects() {
 }
 
 export async function tryDeleteProject(projectId: Project.Entity["id"]) {
-  // auth check for user
-  const user = await tryGetAuthedUser()
-  if (!user)
-    return {
-      success: false,
-      error: {
-        code: "NOT_ALLOWED",
-        message: "You must be signed in to do this."
-      }
-    }
+  return withAuthedUser(async (user) => {
+    // try
+    const result = await deleteProject(
+      { projectId, userId: user.id },
+      databaseAdapter
+    )
 
-  // try
-  const result = await deleteProject(
-    { projectId, userId: user.id },
-    databaseAdapter
-  )
+    if (result.success) revalidatePath("/")
 
-  if (result.success) revalidatePath("/")
-
-  return result
+    return result
+  })
 }

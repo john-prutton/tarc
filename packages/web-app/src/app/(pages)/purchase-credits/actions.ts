@@ -7,7 +7,7 @@ import {
 } from "@repo/domain/use-cases/orders"
 
 import { databaseAdapter, paymentAdapter } from "@/lib/adapters"
-import { tryGetAuthedUser } from "@/lib/auth/util"
+import { withAuthedUser } from "@/lib/auth/utils"
 
 export { getCreditPricingOptions }
 
@@ -16,20 +16,11 @@ export async function tryGeneratePurchaseLink({
 }: {
   pricingOption: number
 }): AsyncTaskResult<{ checkoutUrl: string; reference: string }> {
-  // auth check
-  const user = await tryGetAuthedUser()
-  if (!user)
-    return {
-      success: false,
-      error: {
-        code: "NOT_ALLOWED",
-        message: "You must be logged in to do this"
-      }
-    }
-
-  // try initialize
-  return await initializeOrder(
-    { pricingOption, userId: user.id },
-    { paymentGateway: paymentAdapter, database: databaseAdapter }
+  return withAuthedUser(async (user) =>
+    // try initialize
+    initializeOrder(
+      { pricingOption, userId: user.id },
+      { paymentGateway: paymentAdapter, database: databaseAdapter }
+    )
   )
 }

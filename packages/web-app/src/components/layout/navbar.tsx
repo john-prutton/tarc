@@ -9,7 +9,7 @@ import {
 
 import { PROJECT_COST } from "@repo/domain/entities/project"
 
-import { tryGetAuthedUser } from "@/lib/auth/util"
+import { tryGetAuthedUser } from "@/lib/auth/actions"
 import { cn } from "@/lib/utils"
 
 import { Avatar, AvatarFallback } from "../ui/avatar"
@@ -100,7 +100,7 @@ function Menu() {
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href={"/auth"} className="flex flex-row gap-x-2">
+          <Link href={"/auth?signOut=true"} className="flex flex-row gap-x-2">
             <LogOutIcon />
             Sign Out
           </Link>
