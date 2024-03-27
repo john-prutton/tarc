@@ -212,4 +212,21 @@ describeDatabaseTest("Team Repository", (db, repository) => {
     )
     expect(result2).toEqual({ success: true, data: "member" })
   })
+
+  it("should get a team by id", async () => {
+    // assign
+    const [createdTeam] = await db
+      .insert(teamsTable)
+      .values({ name: "Test Team" })
+      .returning()
+
+    // act
+    const result = await repository.team.getTeamById(createdTeam!.id)
+
+    // assert
+    expect(result).toEqual({
+      success: true,
+      data: { id: createdTeam!.id, name: "Test Team" }
+    })
+  })
 })

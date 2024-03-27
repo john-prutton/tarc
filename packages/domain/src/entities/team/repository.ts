@@ -16,4 +16,5 @@ export type Repository = {
     userId: User.Entity["id"],
     teamId: Team.Entity["id"]
   ) => AsyncTaskResult<Team.TeamRole>
+  getTeamById: (teamId: Team.Entity["id"]) => AsyncTaskResult<Team.Entity>
 }

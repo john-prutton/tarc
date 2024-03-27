@@ -154,6 +154,26 @@ export function createTeamRepository(db: DatabaseRepository): Team.Repository {
           data: result.role
         }
       })
+    },
+
+    async getTeamById(teamId) {
+      return withDbTryCatch(async () => {
+        const [result] = await db
+          .select()
+          .from(teamsTable)
+          .where(eq(teamsTable.id, teamId))
+
+        if (!result)
+          return {
+            success: false,
+            error: { code: "NOT_FOUND", message: "Team not found" }
+          }
+
+        return {
+          success: true,
+          data: result
+        }
+      })
     }
   }
 }
