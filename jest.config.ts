@@ -18,6 +18,10 @@ const config: Config = {
       displayName: "database",
       testMatch: ["<rootDir>/packages/adapters/drizzle-database/**/*.test.ts"],
       runner: "jest-serial-runner"
+    },
+    {
+      displayName: "payment-gateway",
+      testMatch: ["<rootDir>/packages/adapters/payment-gateway/**/*.test.ts"]
     }
   ].map((projectConfig) => ({ ...defaults, ...projectConfig }))
 }
