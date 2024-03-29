@@ -1,7 +1,12 @@
 import { and, eq } from "drizzle-orm"
 
 import { describeDatabaseTest } from "../../helpers"
-import { teamsTable, usersTable, userTeamRolesTable } from "../../schema"
+import {
+  teamInvitesTable,
+  teamsTable,
+  usersTable,
+  userTeamRolesTable
+} from "../../schema"
 
 describeDatabaseTest("Team Repository", (db, repository) => {
   it("should create a new team", async () => {
@@ -227,6 +232,82 @@ describeDatabaseTest("Team Repository", (db, repository) => {
     expect(result).toEqual({
       success: true,
       data: { id: createdTeam!.id, name: "Test Team" }
+    })
+  })
+
+  describe("createTeamInvite", () => {
+    const fakeDate = new Date(2021, 1, 1)
+    jest.useFakeTimers({ now: fakeDate })
+
+    it("should fail if team does not exist", async () => {
+      // act
+      const result = await repository.team.createTeamInvite({ teamId: 1 })
+
+      // assert
+      expect(result).toEqual({
+        success: false,
+        error: {
+          code: "SERVER_ERROR",
+          message: "Database error: Error: FOREIGN KEY constraint failed"
+        }
+      })
+    })
+
+    it("should create a team invite", async () => {
+      // assign
+      const [createdTeam] = await db
+        .insert(teamsTable)
+        .values({ name: "Test Team" })
+        .returning()
+
+      // act
+      const result = await repository.team.createTeamInvite({
+        teamId: createdTeam!.id
+      })
+
+      // assert
+      expect(result).toEqual({
+        success: true,
+        data: fakeDate.getTime().toString(16).split("").reverse().join("")
+      })
+    })
+  })
+
+  describe("getTeamByInvite", () => {
+    it("should fail if invite does not exist", async () => {
+      // act
+      const result = await repository.team.getTeamByInviteCode("fakeInvite")
+
+      // assert
+      expect(result).toEqual({
+        success: false,
+        error: {
+          code: "NOT_FOUND",
+          message: "Invitation not found"
+        }
+      })
+    })
+
+    it("should get team by invite", async () => {
+      // assign
+      const [createdTeam] = await db
+        .insert(teamsTable)
+        .values({ name: "Test Team" })
+        .returning()
+
+      const [createdInvite] = await db
+        .insert(teamInvitesTable)
+        .values({ teamId: createdTeam!.id, code: "fakeInvite" })
+        .returning()
+
+      // act
+      const result = await repository.team.getTeamByInviteCode("fakeInvite")
+
+      // assert
+      expect(result).toEqual({
+        success: true,
+        data: { id: createdTeam!.id, name: "Test Team" }
+      })
     })
   })
 })

@@ -4,7 +4,7 @@ import { Team } from "@repo/domain/entities"
 import { AsyncTaskResult } from "@repo/domain/types"
 
 import { DatabaseRepository } from "../../db"
-import { userTeamRolesTable } from "../../schema"
+import { teamInvitesTable, userTeamRolesTable } from "../../schema"
 import { teamsTable } from "../../schema/teams"
 
 const withDbTryCatch = async <T>(
@@ -167,6 +167,56 @@ export function createTeamRepository(db: DatabaseRepository): Team.Repository {
           return {
             success: false,
             error: { code: "NOT_FOUND", message: "Team not found" }
+          }
+
+        return {
+          success: true,
+          data: result
+        }
+      })
+    },
+
+    async createTeamInvite({ teamId }) {
+      return withDbTryCatch(async () => {
+        const [result] = await db
+          .insert(teamInvitesTable)
+          .values({ teamId })
+          .returning()
+
+        if (!result)
+          return {
+            success: false,
+            error: {
+              code: "SERVER_ERROR",
+              message: "Failed to create team invite"
+            }
+          }
+
+        return {
+          success: true,
+          data: result.code
+        }
+      })
+    },
+
+    async getTeamByInviteCode(code) {
+      return withDbTryCatch(async () => {
+        const invitationSq = db
+          .select({ teamId: teamInvitesTable.teamId })
+          .from(teamInvitesTable)
+          .where(eq(teamInvitesTable.code, code))
+          .limit(1)
+
+        const [result] = await db
+          .with(db.$with("invitation").as(invitationSq))
+          .select()
+          .from(teamsTable)
+          .where(eq(teamsTable.id, invitationSq))
+
+        if (!result)
+          return {
+            success: false,
+            error: { code: "NOT_FOUND", message: "Invitation not found" }
           }
 
         return {
