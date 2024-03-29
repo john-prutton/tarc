@@ -11,7 +11,7 @@ jest.mock("crypto", () => ({
   })
 }))
 
-jest.mock("@repo/domain/use-cases/credits/record-order", () => ({
+jest.mock("@repo/domain/use-cases/orders/record-order", () => ({
   recordOrder: jest.fn().mockResolvedValue({ success: true, data: undefined })
 }))
 
