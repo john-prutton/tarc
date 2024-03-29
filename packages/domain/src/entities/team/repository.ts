@@ -17,4 +17,8 @@ export type Repository = {
     teamId: Team.Entity["id"]
   ) => AsyncTaskResult<Team.TeamRole>
   getTeamById: (teamId: Team.Entity["id"]) => AsyncTaskResult<Team.Entity>
+  createTeamInvite: (inputs: {
+    teamId: Team.Entity["id"]
+  }) => AsyncTaskResult<string>
+  getTeamByInviteCode: (code: string) => AsyncTaskResult<Team.Entity>
 }
