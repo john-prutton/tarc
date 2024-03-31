@@ -40,7 +40,7 @@ async function ProfileSection() {
   if (!user)
     return (
       <Button asChild>
-        <Link href={"/auth"}>Sign In</Link>
+        <Link href={"/auth?redirect=/dashboard"}>Sign In</Link>
       </Button>
     )
 
