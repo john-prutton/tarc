@@ -1,6 +1,5 @@
-import { SubmitButton } from "@/components/functional/submit-button"
-
-import { tryDeleteTeam, tryGetTeam } from "./actions"
+import { tryGetTeam } from "./actions"
+import { CreateInviteForm, DeleteTeamForm } from "./components"
 
 export default async function TeamPage({
   params: { teamId: _teamId }
@@ -18,14 +17,8 @@ export default async function TeamPage({
     <div>
       {team.name}
 
-      <form action={tryDeleteTeam}>
-        <input type="hidden" name="teamId" value={teamId} />
-        <SubmitButton
-          text="Delete this team"
-          pendingText="Deleting..."
-          variant={"destructive"}
-        />
-      </form>
+      <DeleteTeamForm teamId={teamId} />
+      <CreateInviteForm teamId={teamId} />
     </div>
   )
 }

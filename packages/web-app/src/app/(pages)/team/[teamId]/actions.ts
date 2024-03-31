@@ -3,7 +3,12 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
-import { deleteMyTeam, getTeam } from "@repo/domain/use-cases/team"
+import { AsyncTaskResult } from "@repo/domain/types"
+import {
+  createTeamInvite,
+  deleteMyTeam,
+  getTeam
+} from "@repo/domain/use-cases/team"
 
 import { databaseAdapter } from "@/lib/adapters"
 import { withAuthedUser } from "@/lib/auth/utils"
@@ -41,4 +46,20 @@ export const tryDeleteTeam = async (formData: FormData) => {
   } else console.log(result.error)
 
   return result
+}
+
+export const tryCreateTeamInvite = async (
+  state: any,
+  formData: FormData
+): AsyncTaskResult<string> => {
+  const teamId = Number(formData.get("teamId"))
+  if (isNaN(teamId))
+    return {
+      success: false,
+      error: { code: "NOT_ALLOWED", message: "A team ID is required" }
+    }
+
+  return await withAuthedUser(async (user) =>
+    createTeamInvite({ teamId, userId: user.id }, { db: databaseAdapter })
+  )
 }
