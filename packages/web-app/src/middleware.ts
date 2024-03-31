@@ -9,15 +9,14 @@ function checkAuthToken() {
 }
 
 export async function middleware(req: NextRequest) {
-  const url = new URL(req.url)
-  const pathname = url.pathname
-
   const hasAuthToken = checkAuthToken()
+  if (hasAuthToken) return
 
-  if (!hasAuthToken)
-    return NextResponse.redirect(new URL(`/auth?redirect=${pathname}`, req.url))
+  const url = new URL(req.url)
+  const redirect = encodeURIComponent(url.pathname + url.search)
+  return NextResponse.redirect(new URL(`/auth?redirect=${redirect}`, req.url))
 }
 
 export const config = {
-  matcher: ["/projects/:path*", "/dashboard", "/team/:teamId/:path*"]
+  matcher: ["/projects/:path*", "/dashboard", "/team/:path*"]
 }

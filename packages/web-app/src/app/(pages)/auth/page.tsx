@@ -8,14 +8,14 @@ import { SignOutForm } from "./sign-out"
 export default async function AuthPage({
   searchParams
 }: {
-  searchParams: { [key: string]: string }
+  searchParams: { redirect?: string; signOut?: string }
 }) {
   const user = await tryGetAuthedUser()
 
-  const redirectPathname = searchParams["redirect"]
+  const redirectPath = searchParams["redirect"]
   const isSignOut = searchParams["signOut"] === "true"
 
-  if (user && redirectPathname) redirect(redirectPathname || "/dashboard")
+  if (user && redirectPath) redirect(decodeURIComponent(redirectPath))
   if (!user && isSignOut) redirect("/")
 
   const form = user ? <SignOutForm username={user.username} /> : <AuthForm />
