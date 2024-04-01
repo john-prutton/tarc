@@ -10,7 +10,8 @@ export const mockTeamRepository = (): Team.Repository => {
     getTeamById: jest.fn(),
     createTeamInvite: jest.fn(),
     getTeamByInviteCode: jest.fn(),
-    deleteInvitation: jest.fn()
+    deleteInvitation: jest.fn(),
+    removeMemberFromTeam: jest.fn()
   }
 
   return mock

@@ -310,4 +310,61 @@ describeDatabaseTest("Team Repository", (db, repository) => {
       })
     })
   })
+
+  it("should delete a team invite", async () => {
+    // assign
+    const [createdTeam] = await db
+      .insert(teamsTable)
+      .values({ name: "Test Team" })
+      .returning()
+
+    const [createdInvite] = await db
+      .insert(teamInvitesTable)
+      .values({ teamId: createdTeam!.id, code: "fakeInvite" })
+      .returning()
+
+    // act
+    const result = await repository.team.deleteInvitation(createdInvite!.code)
+
+    // assert
+    expect(result).toEqual({ success: true, data: undefined })
+    expect(await db.select().from(teamInvitesTable)).toEqual([])
+  })
+
+  it("should delete members role", async () => {
+    // assign
+    const [createdTeam] = await db
+      .insert(teamsTable)
+      .values({ name: "Test Team" })
+      .returning()
+
+    const [createdUser] = await db
+      .insert(usersTable)
+      .values({
+        username: "test",
+        hashedPassword: "test",
+        credits: 100,
+        id: "1"
+      })
+      .returning()
+
+    const [createdRole] = await db
+      .insert(userTeamRolesTable)
+      .values({
+        userId: createdUser!.id,
+        teamId: createdTeam!.id,
+        role: "member"
+      })
+      .returning()
+
+    // act
+    const result = await repository.team.removeMemberFromTeam({
+      userId: createdUser!.id,
+      teamId: createdTeam!.id
+    })
+
+    // assert
+    expect(result).toEqual({ success: true, data: undefined })
+    expect(await db.select().from(userTeamRolesTable)).toEqual([])
+  })
 })

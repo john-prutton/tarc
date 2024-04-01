@@ -241,6 +241,27 @@ export function createTeamRepository(db: DatabaseRepository): Team.Repository {
 
         return { success: true, data: undefined }
       })
+    },
+
+    async removeMemberFromTeam({ teamId, userId }) {
+      return withDbTryCatch(async () => {
+        const result = await db
+          .delete(userTeamRolesTable)
+          .where(
+            and(
+              eq(userTeamRolesTable.teamId, teamId),
+              eq(userTeamRolesTable.userId, userId)
+            )
+          )
+
+        if (result.rowsAffected === 0)
+          return {
+            success: false,
+            error: { code: "NOT_FOUND", message: "User not found in team" }
+          }
+
+        return { success: true, data: undefined }
+      })
     }
   }
 }
