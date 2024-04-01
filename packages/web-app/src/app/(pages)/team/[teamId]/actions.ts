@@ -7,21 +7,17 @@ import { AsyncTaskResult } from "@repo/domain/types"
 import {
   createTeamInvite,
   deleteMyTeam,
-  getTeam
+  getTeamData,
+  removeUserFromTeam
 } from "@repo/domain/use-cases/team"
 
 import { databaseAdapter } from "@/lib/adapters"
 import { withAuthedUser } from "@/lib/auth/utils"
 
-export const tryGetTeam = async (teamId: number) =>
-  withAuthedUser(async (user) => {
-    const team = await getTeam(
-      { teamId, userId: user.id },
-      { db: databaseAdapter }
-    )
-
-    return team
-  })
+export const tryGetTeamData = async (teamId: number) =>
+  withAuthedUser(async (user) =>
+    getTeamData({ teamId, userId: user.id }, { db: databaseAdapter })
+  )
 
 export const tryDeleteTeam = async (formData: FormData) => {
   const teamId = Number(formData.get("teamId"))
@@ -62,4 +58,30 @@ export const tryCreateTeamInvite = async (
   return await withAuthedUser(async (user) =>
     createTeamInvite({ teamId, userId: user.id }, { db: databaseAdapter })
   )
+}
+
+export const tryRemoveTeamMember = async (formData: FormData) => {
+  const teamId = Number(formData.get("teamId"))
+  if (isNaN(teamId))
+    return {
+      success: false,
+      error: { code: "NOT_ALLOWED", message: "A team ID is required" }
+    }
+
+  const teamMemberToRemoveId = formData.get("teamMemberToRemoveId")
+  if (typeof teamMemberToRemoveId !== "string")
+    return {
+      success: false,
+      error: { code: "NOT_ALLOWED", message: "A user ID is required" }
+    }
+
+  const result = await withAuthedUser(async (user) =>
+    removeUserFromTeam(
+      { teamId, userId: user.id, teamMemberToRemoveId: teamMemberToRemoveId },
+      { db: databaseAdapter }
+    )
+  )
+
+  if (result.success) revalidatePath(`/team/${teamId}`)
+  return result
 }
