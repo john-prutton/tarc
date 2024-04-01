@@ -4,7 +4,7 @@ import { Team } from "@repo/domain/entities"
 import { AsyncTaskResult } from "@repo/domain/types"
 
 import { DatabaseRepository } from "../../db"
-import { teamInvitesTable, userTeamRolesTable } from "../../schema"
+import { teamInvitesTable, usersTable, userTeamRolesTable } from "../../schema"
 import { teamsTable } from "../../schema/teams"
 
 const withDbTryCatch = async <T>(
@@ -261,6 +261,25 @@ export function createTeamRepository(db: DatabaseRepository): Team.Repository {
           }
 
         return { success: true, data: undefined }
+      })
+    },
+
+    async getTeamMembers({ teamId }) {
+      return withDbTryCatch(async () => {
+        const memberIdsSq = db
+          .select({ id: userTeamRolesTable.userId })
+          .from(userTeamRolesTable)
+          .where(eq(userTeamRolesTable.teamId, teamId))
+
+        const users = await db
+          .select()
+          .from(usersTable)
+          .where(inArray(usersTable.id, memberIdsSq))
+
+        return {
+          success: true,
+          data: users
+        }
       })
     }
   }

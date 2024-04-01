@@ -26,4 +26,7 @@ export type Repository = {
     userId: User.Entity["id"]
     teamId: Team.Entity["id"]
   }) => AsyncTaskResult<void>
+  getTeamMembers: (inputs: {
+    teamId: Team.Entity["id"]
+  }) => AsyncTaskResult<User.Entity[]>
 }

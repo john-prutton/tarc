@@ -1,9 +1,9 @@
 import { mockDatabaseRepository } from "../../../__mocks__"
 import { Database } from "../../../adapters"
 import { Team, User } from "../../../entities"
-import { getTeam } from "./index"
+import { getTeamData } from "./index"
 
-describe("getTeam", () => {
+describe("getTeamData", () => {
   const mockUser: User.Entity = {
     id: "mockUserId",
     credits: 100,
@@ -18,7 +18,7 @@ describe("getTeam", () => {
     mockDb = mockDatabaseRepository()
   })
 
-  it("should return the team when it exists and the user is a member", async () => {
+  it("should return the team data when it exists and the user is a member", async () => {
     jest.spyOn(mockDb.team, "getUserRoleInTeam").mockResolvedValueOnce({
       success: true,
       data: "owner"
@@ -28,11 +28,27 @@ describe("getTeam", () => {
       .spyOn(mockDb.team, "getTeamById")
       .mockResolvedValueOnce({ success: true, data: mockTeam })
 
+    const mockTeamMembers = [
+      {
+        id: "mockUserId",
+        username: "username",
+        hashedPassword: "password",
+        credits: 100
+      }
+    ]
+    jest.spyOn(mockDb.team, "getTeamMembers").mockResolvedValueOnce({
+      success: true,
+      data: mockTeamMembers
+    })
+
     const inputs = { userId: mockUser.id, teamId: mockTeam.id }
     const dependencies = { db: mockDb }
-    const result = await getTeam(inputs, dependencies)
+    const result = await getTeamData(inputs, dependencies)
 
-    expect(result).toEqual({ success: true, data: mockTeam })
+    expect(result).toEqual({
+      success: true,
+      data: { team: mockTeam, members: mockTeamMembers }
+    })
     expect(mockDb.team.getUserRoleInTeam).toHaveBeenCalledWith(
       mockUser.id,
       mockTeam.id
@@ -48,7 +64,7 @@ describe("getTeam", () => {
 
     const inputs = { teamId: 9999999, userId: mockUser.id }
     const dependencies = { db: mockDb }
-    const result = await getTeam(inputs, dependencies)
+    const result = await getTeamData(inputs, dependencies)
 
     expect(result).toEqual({
       success: false,

@@ -367,4 +367,57 @@ describeDatabaseTest("Team Repository", (db, repository) => {
     expect(result).toEqual({ success: true, data: undefined })
     expect(await db.select().from(userTeamRolesTable)).toEqual([])
   })
+
+  it("should get team members", async () => {
+    // assign
+    const [createdTeam] = await db
+      .insert(teamsTable)
+      .values({ name: "Test Team" })
+      .returning()
+
+    const [createdUser1, createdUser2] = await db
+      .insert(usersTable)
+      .values([
+        {
+          username: "test",
+          hashedPassword: "test",
+          credits: 100,
+          id: "1"
+        },
+        {
+          username: "test2",
+          hashedPassword: "test2",
+          credits: 100,
+          id: "2"
+        }
+      ])
+      .returning()
+
+    const createdRoles = await db
+      .insert(userTeamRolesTable)
+      .values([
+        {
+          userId: createdUser1!.id,
+          teamId: createdTeam!.id,
+          role: "member"
+        },
+        {
+          userId: createdUser2!.id,
+          teamId: createdTeam!.id,
+          role: "member"
+        }
+      ])
+      .returning()
+
+    // act
+    const result = await repository.team.getTeamMembers({
+      teamId: createdTeam!.id
+    })
+
+    // assert
+    expect(result).toEqual({
+      success: true,
+      data: [createdUser1, createdUser2]
+    })
+  })
 })
