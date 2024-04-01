@@ -2,10 +2,10 @@ import Link from "next/link"
 
 import { Button } from "../ui/button"
 
-export function Logo() {
+export function Logo({ href = "/" }: { href?: string }) {
   return (
     <Button asChild variant={"ghost"} className="gap-x-2 px-0">
-      <Link href={"/"}>
+      <Link href={href}>
         <Icon className="size-10" />
         <span className="text-5xl font-black leading-10">Tarc</span>
       </Link>

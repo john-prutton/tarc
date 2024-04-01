@@ -7,6 +7,7 @@ import {
   UserIcon
 } from "lucide-react"
 
+import { User } from "@repo/domain/entities"
 import { PROJECT_COST } from "@repo/domain/entities/project"
 
 import { tryGetAuthedUser } from "@/lib/auth/actions"
@@ -25,18 +26,22 @@ import {
 import { Logo } from "./logo"
 
 export async function Navbar() {
+  const user = await tryGetAuthedUser()
+
   return (
     <nav className="bg-primary-foreground flex flex-row items-center justify-between px-8 py-4 shadow">
-      <Logo />
+      <Logo href={user ? "/dashboard" : "/"} />
 
-      <ProfileSection />
+      <ProfileSection user={user} />
     </nav>
   )
 }
 
-async function ProfileSection() {
-  const user = await tryGetAuthedUser()
-
+async function ProfileSection({
+  user
+}: {
+  user: Omit<User.Entity, "hashedPassword"> | null
+}) {
   if (!user)
     return (
       <Button asChild>
