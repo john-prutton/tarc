@@ -88,6 +88,7 @@ export function createTeamRepository(db: DatabaseRepository): Team.Repository {
               eq(userTeamRolesTable.userId, userId)
             )
           )
+          .limit(1)
 
         let result
         if (userTeamRole) {
@@ -102,14 +103,14 @@ export function createTeamRepository(db: DatabaseRepository): Team.Repository {
                 )
               )
               .returning()
-          )[0]
+          ).at(0)
         } else {
           result = (
             await db
               .insert(userTeamRolesTable)
               .values({ teamId, userId, role })
               .returning()
-          )[0]
+          ).at(0)
         }
 
         if (!result)
@@ -223,6 +224,22 @@ export function createTeamRepository(db: DatabaseRepository): Team.Repository {
           success: true,
           data: result
         }
+      })
+    },
+
+    async deleteInvitation(code) {
+      return withDbTryCatch(async () => {
+        const result = await db
+          .delete(teamInvitesTable)
+          .where(eq(teamInvitesTable.code, code))
+
+        if (result.rowsAffected !== 1)
+          return {
+            success: false,
+            error: { code: "NOT_FOUND", message: "Invitation not found" }
+          }
+
+        return { success: true, data: undefined }
       })
     }
   }

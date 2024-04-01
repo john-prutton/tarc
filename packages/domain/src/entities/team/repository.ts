@@ -21,4 +21,5 @@ export type Repository = {
     teamId: Team.Entity["id"]
   }) => AsyncTaskResult<string>
   getTeamByInviteCode: (code: string) => AsyncTaskResult<Team.Entity>
+  deleteInvitation: (code: string) => AsyncTaskResult<void>
 }
